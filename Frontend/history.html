@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AQI Monitor - History</title>
+
+    <!-- <link rel="stylesheet" href="/Styles/history.css" /> -->
+    <!-- <script defer src="history.js"></script> -->
+
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f4f7fb;
+        --card: #ffffff;
+        --text: #0f172a;
+        --muted: #64748b;
+        --blue: #1d4ed8;
+        --shadow: 0 10px 25px rgba(15, 23, 42, 0.07);
+        --radius: 16px;
+        --border: rgba(15, 23, 42, 0.06);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial,
+          sans-serif;
+        color: var(--text);
+        background: var(--bg);
+      }
+
+      /* NAVBAR same style */
+      .navbar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: #f7faff;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .nav-container {
+        max-width: 1180px;
+        margin: auto;
+        padding: 14px 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+      }
+
+      .logo {
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        background: #e7f5ec;
+        border: 1px solid rgba(15, 23, 42, 0.06);
+      }
+
+      .logo.small {
+        width: 32px;
+        height: 32px;
+        border-radius: 12px;
+        background: rgba(29, 78, 216, 0.08);
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+      }
+
+      .nav-links a {
+        text-decoration: none;
+        color: #1f2a44;
+        font-weight: 600;
+        font-size: 13px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        transition: 0.2s ease;
+      }
+
+      .nav-links a:hover {
+        background: rgba(29, 78, 216, 0.08);
+      }
+
+      .nav-links a.active {
+        background: rgba(29, 78, 216, 0.15);
+        color: var(--blue);
+      }
+
+      /* Mobile */
+      .nav-toggle {
+        display: none;
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+      }
+      .nav-toggle span {
+        display: block;
+        width: 24px;
+        height: 2px;
+        background: #1f2a44;
+        margin: 5px 0;
+        border-radius: 2px;
+      }
+
+      .mobile-menu {
+        display: none;
+        flex-direction: column;
+        padding: 10px 18px 16px;
+        gap: 8px;
+      }
+
+      .mobile-menu a {
+        text-decoration: none;
+        color: #1f2a44;
+        font-weight: 700;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.6);
+        border: 1px solid var(--border);
+      }
+
+      .mobile-menu a.active {
+        border-color: rgba(29, 78, 216, 0.25);
+        background: rgba(29, 78, 216, 0.12);
+        color: var(--blue);
+      }
+
+      /* Page */
+      .page {
+        max-width: 1180px;
+        margin: auto;
+        padding: 30px 18px 40px;
+      }
+
+      .hero {
+        text-align: center;
+        margin: 10px 0 18px;
+      }
+
+      .hero h1 {
+        font-size: clamp(22px, 3vw, 36px);
+        font-weight: 900;
+        color: #0b2b80;
+        letter-spacing: -0.6px;
+      }
+
+      .hero p {
+        margin-top: 10px;
+        color: var(--muted);
+        font-weight: 600;
+      }
+
+      .hero .muted {
+        font-weight: 800;
+        color: #334155;
+      }
+
+      .toggle-wrap {
+        margin-top: 18px;
+        display: inline-flex;
+        gap: 10px;
+        padding: 6px;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.03);
+        border: 1px solid rgba(15, 23, 42, 0.06);
+      }
+
+      .tab-btn {
+        padding: 10px 18px;
+        border-radius: 999px;
+        border: 0;
+        cursor: pointer;
+        font-weight: 900;
+        font-size: 13px;
+        background: transparent;
+      }
+
+      .tab-btn.active {
+        background: #0b2b80;
+        color: #fff;
+      }
+
+      /* Layout */
+      .card {
+        background: var(--card);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+      }
+
+      .history-grid {
+        display: grid;
+        grid-template-columns: 1.75fr 0.85fr;
+        gap: 18px;
+        margin-top: 18px;
+      }
+
+      .chart-card {
+        padding: 18px;
+      }
+      .card-head h3 {
+        font-size: 15px;
+        font-weight: 900;
+        margin-bottom: 10px;
+      }
+
+      .chart-wrap {
+        height: 360px;
+        background: rgba(15, 23, 42, 0.02);
+        border: 1px solid rgba(15, 23, 42, 0.05);
+        border-radius: 16px;
+        overflow: hidden;
+        padding: 10px;
+      }
+
+      canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      .xlabels {
+        display: grid;
+        gap: 0;
+        margin-top: 10px;
+        color: var(--muted);
+        font-weight: 800;
+        font-size: 12px;
+      }
+      .xlabels span {
+        text-align: center;
+      }
+
+      /* Side cards */
+      .side {
+        display: grid;
+        gap: 14px;
+      }
+
+      .stat {
+        display: grid;
+        grid-template-columns: 56px 1fr;
+        gap: 12px;
+        padding: 16px;
+        align-items: center;
+      }
+
+      .icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(15, 23, 42, 0.06);
+      }
+
+      .icon.yellow {
+        background: rgba(250, 204, 21, 0.2);
+        border-color: rgba(250, 204, 21, 0.3);
+      }
+      .icon.blue {
+        background: rgba(14, 165, 233, 0.16);
+        border-color: rgba(14, 165, 233, 0.22);
+      }
+      .icon.navy {
+        background: rgba(29, 78, 216, 0.92);
+        border-color: rgba(29, 78, 216, 0.3);
+      }
+
+      .label {
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 900;
+      }
+      .value {
+        font-weight: 900;
+        font-size: 18px;
+        margin-top: 4px;
+      }
+      .sub {
+        margin-top: 6px;
+        font-size: 12px;
+        font-weight: 900;
+        color: #c19a00;
+      }
+
+      /* Insight */
+      .insight {
+        padding: 16px;
+      }
+      .ins-head {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+      }
+      .ins-icon {
+        font-size: 16px;
+      }
+      .insight p {
+        color: var(--muted);
+        font-weight: 600;
+        line-height: 1.6;
+        font-size: 13px;
+      }
+
+      /* Footer same */
+      .footer {
+        margin-top: 26px;
+        background: #ffffff;
+        border-top: 1px solid var(--border);
+      }
+
+      .footer-inner {
+        max-width: 1180px;
+        margin: auto;
+        padding: 24px 18px;
+        display: grid;
+        grid-template-columns: 1.4fr 1fr 1fr;
+        gap: 16px;
+      }
+
+      .footer-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .footer-desc {
+        color: var(--muted);
+        font-weight: 600;
+        line-height: 1.6;
+        max-width: 420px;
+      }
+
+      .footer-col b {
+        font-weight: 900;
+        display: inline-block;
+        margin-bottom: 10px;
+      }
+
+      .footer-col a {
+        display: block;
+        text-decoration: none;
+        color: #334155;
+        font-weight: 800;
+        font-size: 13px;
+        margin: 8px 0;
+      }
+
+      .footer-col p {
+        color: #334155;
+        font-weight: 700;
+        margin: 8px 0;
+        font-size: 13px;
+      }
+
+      .footer-bottom {
+        border-top: 1px solid var(--border);
+        text-align: center;
+        padding: 14px 12px;
+        color: var(--muted);
+        font-weight: 800;
+        font-size: 13px;
+      }
+
+      .heart {
+        color: #ef4444;
+      }
+
+      /* Responsive */
+      @media (max-width: 980px) {
+        .history-grid {
+          grid-template-columns: 1fr;
+        }
+        .chart-wrap {
+          height: 320px;
+        }
+      }
+
+      @media (max-width: 760px) {
+        .nav-links {
+          display: none;
+        }
+        .nav-toggle {
+          display: block;
+        }
+        .mobile-menu.show {
+          display: flex;
+        }
+
+        .footer-inner {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- NAVBAR -->
+    <header class="navbar">
+      <div class="nav-container">
+        <div class="brand">
+          <div class="logo">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M7 14c-1.66 0-3 1.34-3 3s1.34 3 3 3h10a4 4 0 0 0 0-8h-.5A5.5 5.5 0 0 0 6 10.5"
+                stroke="#0F9D58"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+              <path
+                d="M8 5l2 2-2 2"
+                stroke="#0F9D58"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M4 7h6"
+                stroke="#0F9D58"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+          </div>
+          <span class="brand-text">AQI Monitor</span>
+        </div>
+
+        <nav class="nav-links">
+          <a href="index.html">Dashboard</a>
+          <a href="forecast.html">Forecast</a>
+          <a class="active" href="history.html">History</a>
+          <a href="health.html">Health Advisory</a>
+          <a href="about.html">About</a>
+        </nav>
+
+        <button
+          class="nav-toggle"
+          id="navToggle"
+          aria-label="Toggle navigation"
+        >
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+
+      <div class="mobile-menu" id="mobileMenu">
+        <a href="index.html">Dashboard</a>
+        <a href="forecast.html">Forecast</a>
+        <a class="active" href="history.html">History</a>
+        <a href="#">Health Advisory</a>
+        <a href="#">About</a>
+      </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="page">
+      <section class="hero">
+        <h1>AQI Trends &amp; History</h1>
+        <p>
+          Historical air quality data analysis for
+          <span class="muted">Delhi</span>
+        </p>
+
+        <div class="toggle-wrap">
+          <button class="tab-btn active" id="btnToday">Today</button>
+          <button class="tab-btn" id="btnWeekly">Weekly</button>
+          <button class="tab-btn" id="btnMonthly">Monthly</button>
+        </div>
+      </section>
+
+      <section class="history-grid">
+        <!-- Chart card -->
+        <article class="card chart-card">
+          <div class="card-head">
+            <h3>Historical AQI Chart</h3>
+          </div>
+
+          <div class="chart-wrap">
+            <canvas id="historyChart"></canvas>
+          </div>
+
+          <div class="xlabels" id="xLabels"></div>
+        </article>
+
+        <!-- Right info -->
+        <aside class="side">
+          <div class="card stat">
+            <div class="icon yellow">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M4 12h4l2-6 4 12 2-6h4"
+                  stroke="#0f172a"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+            <div>
+              <div class="label">Average AQI</div>
+              <div class="value"><span id="avgAqi">155</span></div>
+              <div class="sub" id="avgBand">Moderate</div>
+            </div>
+          </div>
+
+          <div class="card stat">
+            <div class="icon blue">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M6 20V10"
+                  stroke="#0f172a"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M12 20V4"
+                  stroke="#0f172a"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M18 20v-7"
+                  stroke="#0f172a"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </div>
+            <div>
+              <div class="label">AQI Range</div>
+              <div class="value"><span id="rangeText">125 - 185</span></div>
+            </div>
+          </div>
+
+          <div class="card stat">
+            <div class="icon navy">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M8 7V3"
+                  stroke="#fff"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M16 7V3"
+                  stroke="#fff"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M4 9h16"
+                  stroke="#fff"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M6 21h12a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2Z"
+                  stroke="#fff"
+                  stroke-width="2"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+            <div>
+              <div class="label">Period</div>
+              <div class="value" id="periodText">Today</div>
+            </div>
+          </div>
+
+          <div class="card insight">
+            <div class="ins-head">
+              <span class="ins-icon">📈</span>
+              <b>Insight</b>
+            </div>
+            <p id="insightText">
+              Today's air quality peaked at 185 around midday, typical for urban
+              areas due to traffic and solar activity.
+            </p>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="footer-col">
+          <div class="footer-brand">
+            <div class="logo small">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M7 14c-1.66 0-3 1.34-3 3s1.34 3 3 3h10a4 4 0 0 0 0-8h-.5A5.5 5.5 0 0 0 6 10.5"
+                  stroke="#1D4ED8"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </div>
+            <b>AQI Monitor</b>
+          </div>
+          <p class="footer-desc">
+            Real-time air quality monitoring and AI-powered predictions for
+            healthier living.
+          </p>
+        </div>
+
+        <div class="footer-col">
+          <b>Quick Links</b>
+          <a href="index.html">Dashboard</a>
+          <a href="forecast.html">Forecast</a>
+          <a href="history.html">History</a>
+          <a href="about.html">About</a>
+        </div>
+
+        <div class="footer-col">
+          <b>Information</b>
+          <p>📌 Data Source: CPCB / OpenAQ</p>
+          <p>⚠️ AQI values are indicative</p>
+          <p>💡 Developed for Hackathon</p>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        © 2026 AQI Monitor. Built with <span class="heart">❤</span> for cleaner
+        air.
+      </div>
+    </footer>
+
+    <script>
+      // Mobile menu
+      const navToggle = document.getElementById("navToggle");
+      const mobileMenu = document.getElementById("mobileMenu");
+
+      navToggle.addEventListener("click", () => {
+        mobileMenu.classList.toggle("show");
+      });
+
+      // Buttons
+      const btnToday = document.getElementById("btnToday");
+      const btnWeekly = document.getElementById("btnWeekly");
+      const btnMonthly = document.getElementById("btnMonthly");
+
+      // Elements
+      const avgAqiEl = document.getElementById("avgAqi");
+      const avgBandEl = document.getElementById("avgBand");
+      const rangeTextEl = document.getElementById("rangeText");
+      const periodTextEl = document.getElementById("periodText");
+      const insightTextEl = document.getElementById("insightText");
+      const xLabelsDiv = document.getElementById("xLabels");
+
+      // Canvas
+      const canvas = document.getElementById("historyChart");
+      const ctx = canvas.getContext("2d");
+
+      function resizeCanvas() {
+        const parent = canvas.parentElement;
+        canvas.width = parent.clientWidth * devicePixelRatio;
+        canvas.height = parent.clientHeight * devicePixelRatio;
+        ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+      }
+      window.addEventListener("resize", () => {
+        resizeCanvas();
+        drawBars(current.values, current.labels);
+      });
+
+      // Data sets (matching screenshot)
+      const today = {
+        labels: ["6 AM", "9 AM", "12 PM", "3 PM", "6 PM", "Now"],
+        values: [125, 145, 175, 185, 155, 145],
+        period: "Today",
+        insight:
+          "Today's air quality peaked at 185 around midday, typical for urban areas due to traffic and solar activity.",
+      };
+
+      const weekly = {
+        labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+        values: [160, 152, 168, 178, 140, 156, 148],
+        period: "Weekly",
+        insight:
+          "Weekly pattern shows slightly higher AQI mid-week, likely due to increased traffic and industrial activity.",
+      };
+
+      const monthly = {
+        labels: ["W1", "W2", "W3", "W4"],
+        values: [172, 150, 162, 140],
+        period: "Monthly",
+        insight:
+          "Monthly trend indicates improvement in the last week, possibly due to weather changes and reduced emissions.",
+      };
+
+      let current = today;
+
+      // helpers
+      function setActive(btn) {
+        [btnToday, btnWeekly, btnMonthly].forEach((b) =>
+          b.classList.remove("active")
+        );
+        btn.classList.add("active");
+      }
+
+      function bandName(avg) {
+        if (avg <= 50) return "Good";
+        if (avg <= 100) return "Satisfactory";
+        if (avg <= 200) return "Moderate";
+        if (avg <= 300) return "Poor";
+        if (avg <= 400) return "Very Poor";
+        return "Severe";
+      }
+
+      function updateLabels(labels) {
+        xLabelsDiv.innerHTML = "";
+        xLabelsDiv.style.gridTemplateColumns = `repeat(${labels.length}, 1fr)`;
+        labels.forEach((l) => {
+          const sp = document.createElement("span");
+          sp.textContent = l;
+          xLabelsDiv.appendChild(sp);
+        });
+      }
+
+      function updateStats(values, period, insight) {
+        const avg = Math.round(
+          values.reduce((a, b) => a + b, 0) / values.length
+        );
+        const min = Math.min(...values);
+        const max = Math.max(...values);
+
+        avgAqiEl.textContent = avg;
+        avgBandEl.textContent = bandName(avg);
+
+        rangeTextEl.textContent = `${min} - ${max}`;
+        periodTextEl.textContent = period;
+        insightTextEl.textContent = insight;
+      }
+
+      function drawBars(values, labels) {
+        const w = canvas.clientWidth;
+        const h = canvas.clientHeight;
+
+        ctx.clearRect(0, 0, w, h);
+
+        // padding
+        const padL = 48;
+        const padR = 18;
+        const padT = 16;
+        const padB = 28;
+
+        const innerW = w - padL - padR;
+        const innerH = h - padT - padB;
+
+        // scale
+        const yMin = 0;
+        const yMax = 200;
+
+        const yToPx = (y) => {
+          const t = (y - yMin) / (yMax - yMin);
+          return padT + (1 - t) * innerH;
+        };
+
+        // horizontal grid
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = "rgba(15,23,42,0.08)";
+        ctx.setLineDash([4, 4]);
+
+        const ticks = [0, 50, 100, 150, 200];
+        ticks.forEach((t) => {
+          const y = yToPx(t);
+          ctx.beginPath();
+          ctx.moveTo(padL, y);
+          ctx.lineTo(w - padR, y);
+          ctx.stroke();
+
+          // y labels
+          ctx.setLineDash([]);
+          ctx.fillStyle = "rgba(100,116,139,0.95)";
+          ctx.font = "700 12px Inter, Arial";
+          ctx.textAlign = "right";
+          ctx.textBaseline = "middle";
+          ctx.fillText(String(t), padL - 10, y);
+          ctx.setLineDash([4, 4]);
+        });
+
+        // vertical dotted grid
+        const cols = Math.max(6, values.length);
+        for (let i = 0; i <= cols; i++) {
+          const x = padL + (i / cols) * innerW;
+          ctx.beginPath();
+          ctx.moveTo(x, padT);
+          ctx.lineTo(x, padT + innerH);
+          ctx.stroke();
+        }
+
+        ctx.setLineDash([]);
+
+        // bars
+        const barCount = values.length;
+        const gap = 18;
+        const barW = Math.min(110, (innerW - gap * (barCount - 1)) / barCount);
+
+        const totalBarsW = barW * barCount + gap * (barCount - 1);
+        let xStart = padL + (innerW - totalBarsW) / 2;
+
+        values.forEach((v, i) => {
+          const x = xStart + i * (barW + gap);
+          const y = yToPx(v);
+          const bh = padT + innerH - y;
+
+          // rounded bar
+          const r = 10;
+          ctx.fillStyle = "rgba(250, 204, 21, 0.25)";
+          ctx.strokeStyle = "rgba(250, 204, 21, 0.35)";
+          ctx.lineWidth = 1;
+
+          ctx.beginPath();
+          roundRect(ctx, x, y, barW, bh, r);
+          ctx.fill();
+          ctx.stroke();
+        });
+
+        // axis
+        ctx.strokeStyle = "rgba(15,23,42,0.25)";
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(padL, padT);
+        ctx.lineTo(padL, padT + innerH);
+        ctx.lineTo(w - padR, padT + innerH);
+        ctx.stroke();
+      }
+
+      function roundRect(ctx, x, y, w, h, r) {
+        const min = Math.min(w, h);
+        if (r > min / 2) r = min / 2;
+
+        ctx.moveTo(x + r, y);
+        ctx.arcTo(x + w, y, x + w, y + h, r);
+        ctx.arcTo(x + w, y + h, x, y + h, r);
+        ctx.arcTo(x, y + h, x, y, r);
+        ctx.arcTo(x, y, x + w, y, r);
+        ctx.closePath();
+      }
+
+      // button events
+      btnToday.addEventListener("click", () => {
+        current = today;
+        setActive(btnToday);
+        updateLabels(current.labels);
+        updateStats(current.values, current.period, current.insight);
+        drawBars(current.values, current.labels);
+      });
+
+      btnWeekly.addEventListener("click", () => {
+        current = weekly;
+        setActive(btnWeekly);
+        updateLabels(current.labels);
+        updateStats(current.values, current.period, current.insight);
+        drawBars(current.values, current.labels);
+      });
+
+      btnMonthly.addEventListener("click", () => {
+        current = monthly;
+        setActive(btnMonthly);
+        updateLabels(current.labels);
+        updateStats(current.values, current.period, current.insight);
+        drawBars(current.values, current.labels);
+      });
+
+      // init
+      resizeCanvas();
+      updateLabels(current.labels);
+      updateStats(current.values, current.period, current.insight);
+      drawBars(current.values, current.labels);
+    </script>
+  </body>
+</html>

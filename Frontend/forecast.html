@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AQI Monitor - Forecast</title>
+
+    <!-- <link rel="stylesheet" href="/Styles/forecast.css" />
+  <script defer src="forecast.js"></script> -->
+
+    <!-- Font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #f4f7fb;
+        --card: #ffffff;
+        --text: #0f172a;
+        --muted: #64748b;
+        --blue: #1d4ed8;
+        --shadow: 0 10px 25px rgba(15, 23, 42, 0.07);
+        --radius: 16px;
+        --border: rgba(15, 23, 42, 0.06);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial,
+          sans-serif;
+        color: var(--text);
+        background: var(--bg);
+      }
+
+      /* NAVBAR (same as dashboard) */
+      .navbar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: #f7faff;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .nav-container {
+        max-width: 1180px;
+        margin: auto;
+        padding: 14px 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+      }
+
+      .logo {
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        background: #e7f5ec;
+        border: 1px solid rgba(15, 23, 42, 0.06);
+      }
+
+      .logo.small {
+        width: 32px;
+        height: 32px;
+        border-radius: 12px;
+        background: rgba(29, 78, 216, 0.08);
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+      }
+
+      .nav-links a {
+        text-decoration: none;
+        color: #1f2a44;
+        font-weight: 600;
+        font-size: 13px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        transition: 0.2s ease;
+      }
+
+      .nav-links a:hover {
+        background: rgba(29, 78, 216, 0.08);
+      }
+
+      .nav-links a.active {
+        background: rgba(29, 78, 216, 0.15);
+        color: var(--blue);
+      }
+
+      .nav-toggle {
+        display: none;
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+      }
+
+      .nav-toggle span {
+        display: block;
+        width: 24px;
+        height: 2px;
+        background: #1f2a44;
+        margin: 5px 0;
+        border-radius: 2px;
+      }
+
+      .mobile-menu {
+        display: none;
+        flex-direction: column;
+        padding: 10px 18px 16px;
+        gap: 8px;
+      }
+
+      .mobile-menu a {
+        text-decoration: none;
+        color: #1f2a44;
+        font-weight: 700;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.6);
+        border: 1px solid var(--border);
+      }
+
+      .mobile-menu a.active {
+        border-color: rgba(29, 78, 216, 0.25);
+        background: rgba(29, 78, 216, 0.12);
+        color: var(--blue);
+      }
+
+      /* PAGE */
+      .page {
+        max-width: 1180px;
+        margin: auto;
+        padding: 30px 18px 40px;
+      }
+
+      .hero {
+        text-align: center;
+        margin: 10px 0 18px;
+      }
+
+      .hero h1 {
+        font-size: clamp(22px, 3vw, 36px);
+        font-weight: 900;
+        color: #0b2b80;
+        letter-spacing: -0.6px;
+      }
+
+      .hero p {
+        margin-top: 10px;
+        color: var(--muted);
+        font-weight: 600;
+      }
+
+      .hero .muted {
+        font-weight: 800;
+        color: #334155;
+      }
+
+      /* Toggle */
+      .toggle-wrap {
+        margin-top: 18px;
+        display: inline-flex;
+        gap: 10px;
+        padding: 6px;
+        border-radius: 999px;
+        background: rgba(15, 23, 42, 0.03);
+        border: 1px solid rgba(15, 23, 42, 0.06);
+      }
+
+      .tab-btn {
+        padding: 10px 18px;
+        border-radius: 999px;
+        border: 0;
+        cursor: pointer;
+        font-weight: 800;
+        font-size: 13px;
+        background: transparent;
+      }
+
+      .tab-btn.active {
+        background: #0b2b80;
+        color: #fff;
+      }
+
+      /* Cards */
+      .card {
+        background: var(--card);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+      }
+
+      .forecast-grid {
+        display: grid;
+        grid-template-columns: 1.7fr 0.9fr;
+        gap: 18px;
+        margin-top: 18px;
+      }
+
+      .chart-card {
+        padding: 18px;
+      }
+
+      .card-head h3 {
+        font-size: 15px;
+        font-weight: 900;
+        margin-bottom: 10px;
+      }
+
+      .chart-wrap {
+        height: 380px;
+        background: rgba(15, 23, 42, 0.02);
+        border: 1px solid rgba(15, 23, 42, 0.05);
+        border-radius: 16px;
+        overflow: hidden;
+        padding: 8px;
+      }
+
+      canvas {
+        width: 100%;
+        height: 100%;
+        display: block;
+      }
+
+      .xlabels {
+        margin-top: 10px;
+        display: grid;
+        grid-template-columns: repeat(9, 1fr);
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 700;
+      }
+
+      .xlabels span {
+        text-align: center;
+      }
+
+      /* Right side cards */
+      .side {
+        display: grid;
+        gap: 14px;
+      }
+
+      .mini-info {
+        display: grid;
+        grid-template-columns: 56px 1fr;
+        gap: 12px;
+        padding: 16px;
+        align-items: center;
+      }
+
+      .icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(15, 23, 42, 0.06);
+      }
+
+      .icon.green {
+        background: rgba(34, 197, 94, 0.12);
+        border-color: rgba(34, 197, 94, 0.22);
+      }
+      .icon.yellow {
+        background: rgba(250, 204, 21, 0.2);
+        border-color: rgba(250, 204, 21, 0.3);
+      }
+      .icon.blue {
+        background: rgba(14, 165, 233, 0.16);
+        border-color: rgba(14, 165, 233, 0.22);
+      }
+
+      .label {
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 800;
+      }
+
+      .value {
+        font-weight: 900;
+        font-size: 14px;
+        margin-top: 4px;
+      }
+
+      .summary-card {
+        padding: 16px;
+      }
+
+      .summary-card h4 {
+        font-size: 14px;
+        font-weight: 900;
+        margin-bottom: 10px;
+      }
+
+      .summary-card p {
+        color: var(--muted);
+        font-weight: 600;
+        line-height: 1.6;
+        font-size: 13px;
+      }
+
+      /* FOOTER (same as dashboard) */
+      .footer {
+        margin-top: 26px;
+        background: #ffffff;
+        border-top: 1px solid var(--border);
+      }
+
+      .footer-inner {
+        max-width: 1180px;
+        margin: auto;
+        padding: 24px 18px;
+        display: grid;
+        grid-template-columns: 1.4fr 1fr 1fr;
+        gap: 16px;
+      }
+
+      .footer-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .footer-desc {
+        color: var(--muted);
+        font-weight: 600;
+        line-height: 1.6;
+        max-width: 420px;
+      }
+
+      .footer-col b {
+        font-weight: 900;
+        display: inline-block;
+        margin-bottom: 10px;
+      }
+
+      .footer-col a {
+        display: block;
+        text-decoration: none;
+        color: #334155;
+        font-weight: 800;
+        font-size: 13px;
+        margin: 8px 0;
+      }
+
+      .footer-col p {
+        color: #334155;
+        font-weight: 700;
+        margin: 8px 0;
+        font-size: 13px;
+      }
+
+      .footer-bottom {
+        border-top: 1px solid var(--border);
+        text-align: center;
+        padding: 14px 12px;
+        color: var(--muted);
+        font-weight: 800;
+        font-size: 13px;
+      }
+
+      .heart {
+        color: #ef4444;
+      }
+
+      /* RESPONSIVE */
+      @media (max-width: 980px) {
+        .forecast-grid {
+          grid-template-columns: 1fr;
+        }
+        .chart-wrap {
+          height: 320px;
+        }
+      }
+
+      @media (max-width: 760px) {
+        .nav-links {
+          display: none;
+        }
+        .nav-toggle {
+          display: block;
+        }
+        .mobile-menu.show {
+          display: flex;
+        }
+
+        .xlabels {
+          font-size: 11px;
+        }
+
+        .footer-inner {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- NAVBAR (same styling as dashboard) -->
+    <header class="navbar">
+      <div class="nav-container">
+        <div class="brand">
+          <div class="logo">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M7 14c-1.66 0-3 1.34-3 3s1.34 3 3 3h10a4 4 0 0 0 0-8h-.5A5.5 5.5 0 0 0 6 10.5"
+                stroke="#0F9D58"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+              <path
+                d="M8 5l2 2-2 2"
+                stroke="#0F9D58"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M4 7h6"
+                stroke="#0F9D58"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+          </div>
+          <span class="brand-text">AQI Monitor</span>
+        </div>
+
+        <nav class="nav-links">
+          <a href="index.html">Dashboard</a>
+          <a class="active" href="forecast.html">Forecast</a>
+          <a href="history.html">History</a>
+          <a href="health.html">Health Advisory</a>
+          <a href="about.html">About</a>
+        </nav>
+
+        <button
+          class="nav-toggle"
+          id="navToggle"
+          aria-label="Toggle navigation"
+        >
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+
+      <div class="mobile-menu" id="mobileMenu">
+        <a href="index.html">Dashboard</a>
+        <a class="active" href="forecast.html">Forecast</a>
+        <a href="#">History</a>
+        <a href="#">Health Advisory</a>
+        <a href="#">About</a>
+      </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="page">
+      <section class="hero">
+        <h1>AQI Forecast &amp; Prediction</h1>
+        <p>
+          AI-powered air quality predictions for
+          <span class="muted">Delhi</span>
+        </p>
+
+        <div class="toggle-wrap">
+          <button class="tab-btn active" id="btn24">Next 24 Hours</button>
+          <button class="tab-btn" id="btnTomorrow">Tomorrow</button>
+        </div>
+      </section>
+
+      <section class="forecast-grid">
+        <!-- Chart card -->
+        <article class="card chart-card">
+          <div class="card-head">
+            <h3>AQI Prediction Chart</h3>
+          </div>
+
+          <div class="chart-wrap">
+            <canvas id="aqiChart"></canvas>
+          </div>
+
+          <div class="xlabels" id="xlabels">
+            <span>Now</span><span>3h</span><span>6h</span><span>9h</span>
+            <span>12h</span><span>15h</span><span>18h</span><span>21h</span
+            ><span>24h</span>
+          </div>
+        </article>
+
+        <!-- Right summary cards -->
+        <aside class="side">
+          <div class="card mini-info">
+            <div class="icon green">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M4 12l6 6 10-14"
+                  stroke="#16a34a"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M4 6h7"
+                  stroke="#16a34a"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </div>
+            <div>
+              <div class="label">Trend</div>
+              <div class="value" id="trendText">Improving</div>
+            </div>
+          </div>
+
+          <div class="card mini-info">
+            <div class="icon yellow">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 9v4"
+                  stroke="#b45309"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M12 17h.01"
+                  stroke="#b45309"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                />
+                <path
+                  d="M10.3 4.2 2.5 18a2 2 0 0 0 1.7 3h15.6a2 2 0 0 0 1.7-3L13.7 4.2a2 2 0 0 0-3.4 0Z"
+                  stroke="#b45309"
+                  stroke-width="2"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </div>
+            <div>
+              <div class="label">Peak AQI</div>
+              <div class="value">
+                <span id="peakAqi">178</span> at <span id="peakTime">9h</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="card mini-info">
+            <div class="icon blue">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M12 7v5l3 2"
+                  stroke="#0284c7"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+                <path
+                  d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z"
+                  stroke="#0284c7"
+                  stroke-width="2"
+                />
+              </svg>
+            </div>
+            <div>
+              <div class="label">Average AQI</div>
+              <div class="value" id="avgAqi">149</div>
+            </div>
+          </div>
+
+          <div class="card summary-card">
+            <h4>Prediction Summary</h4>
+            <p id="summaryText">
+              Air quality is expected to improve from 145 to 125. Best time for
+              outdoor activities will be around 24h.
+            </p>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <!-- FOOTER (same styling as dashboard) -->
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="footer-col">
+          <div class="footer-brand">
+            <div class="logo small">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M7 14c-1.66 0-3 1.34-3 3s1.34 3 3 3h10a4 4 0 0 0 0-8h-.5A5.5 5.5 0 0 0 6 10.5"
+                  stroke="#1D4ED8"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </div>
+            <b>AQI Monitor</b>
+          </div>
+          <p class="footer-desc">
+            Real-time air quality monitoring and AI-powered predictions for
+            healthier living.
+          </p>
+        </div>
+
+        <div class="footer-col">
+          <b>Quick Links</b>
+          <a href="index.html">Dashboard</a>
+          <a href="forecast.html">Forecast</a>
+          <a href="#">Health Advisory</a>
+          <a href="#">About</a>
+        </div>
+
+        <div class="footer-col">
+          <b>Information</b>
+          <p>📌 Data Source: CPCB / OpenAQ</p>
+          <p>⚠️ AQI values are indicative</p>
+          <p>💡 Developed for Hackathon</p>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        © 2026 AQI Monitor. Built with <span class="heart">❤</span> for cleaner
+        air.
+      </div>
+    </footer>
+
+    <script>
+      // Mobile menu
+      const navToggle = document.getElementById("navToggle");
+      const mobileMenu = document.getElementById("mobileMenu");
+
+      navToggle.addEventListener("click", () => {
+        mobileMenu.classList.toggle("show");
+      });
+
+      // Buttons
+      const btn24 = document.getElementById("btn24");
+      const btnTomorrow = document.getElementById("btnTomorrow");
+
+      // Stats
+      const trendText = document.getElementById("trendText");
+      const peakAqiEl = document.getElementById("peakAqi");
+      const peakTimeEl = document.getElementById("peakTime");
+      const avgAqiEl = document.getElementById("avgAqi");
+      const summaryText = document.getElementById("summaryText");
+
+      // Canvas chart
+      const canvas = document.getElementById("aqiChart");
+      const ctx = canvas.getContext("2d");
+
+      function resizeCanvas() {
+        const parent = canvas.parentElement;
+        canvas.width = parent.clientWidth * devicePixelRatio;
+        canvas.height = parent.clientHeight * devicePixelRatio;
+        ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
+      }
+      window.addEventListener("resize", () => {
+        resizeCanvas();
+        drawChart(currentData);
+      });
+
+      // Data (matches your curve style)
+      const data24h = [145, 150, 158, 170, 178, 172, 160, 140, 132, 136, 132];
+      const dataTomorrow = [
+        162, 158, 152, 149, 145, 140, 136, 134, 132, 129, 125,
+      ];
+
+      let currentData = data24h;
+
+      function drawChart(data) {
+        const w = canvas.clientWidth;
+        const h = canvas.clientHeight;
+
+        // clean
+        ctx.clearRect(0, 0, w, h);
+
+        // chart padding
+        const padL = 48;
+        const padR = 18;
+        const padT = 16;
+        const padB = 36;
+
+        const innerW = w - padL - padR;
+        const innerH = h - padT - padB;
+
+        // y scale (0..180 like screenshot)
+        const yMin = 0;
+        const yMax = 180;
+
+        const yToPx = (y) => {
+          const t = (y - yMin) / (yMax - yMin);
+          return padT + (1 - t) * innerH;
+        };
+
+        const xToPx = (i) => padL + (i / (data.length - 1)) * innerW;
+
+        // grid lines
+        ctx.lineWidth = 1;
+        ctx.strokeStyle = "rgba(15,23,42,0.08)";
+        ctx.setLineDash([4, 4]);
+
+        const ticks = [0, 45, 90, 135, 180];
+        ticks.forEach((t) => {
+          const y = yToPx(t);
+          ctx.beginPath();
+          ctx.moveTo(padL, y);
+          ctx.lineTo(w - padR, y);
+          ctx.stroke();
+
+          // labels
+          ctx.setLineDash([]);
+          ctx.fillStyle = "rgba(100,116,139,0.9)";
+          ctx.font = "700 12px Inter, Arial";
+          ctx.textAlign = "right";
+          ctx.textBaseline = "middle";
+          ctx.fillText(String(t), padL - 10, y);
+          ctx.setLineDash([4, 4]);
+        });
+
+        // vertical grid (like dotted)
+        const cols = 8;
+        for (let i = 0; i <= cols; i++) {
+          const x = padL + (i / cols) * innerW;
+          ctx.beginPath();
+          ctx.moveTo(x, padT);
+          ctx.lineTo(x, padT + innerH);
+          ctx.stroke();
+        }
+
+        ctx.setLineDash([]);
+
+        // line path
+        const points = data.map((v, i) => ({ x: xToPx(i), y: yToPx(v) }));
+
+        // Smooth curve
+        ctx.strokeStyle = "#1DA1F2";
+        ctx.lineWidth = 3;
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+
+        for (let i = 0; i < points.length - 1; i++) {
+          const p0 = points[i];
+          const p1 = points[i + 1];
+          const cx = (p0.x + p1.x) / 2;
+          ctx.quadraticCurveTo(p0.x, p0.y, cx, (p0.y + p1.y) / 2);
+        }
+        ctx.lineTo(points.at(-1).x, points.at(-1).y);
+        ctx.stroke();
+
+        // Fill under curve
+        const grad = ctx.createLinearGradient(0, padT, 0, padT + innerH);
+        grad.addColorStop(0, "rgba(29,161,242,0.25)");
+        grad.addColorStop(1, "rgba(29,161,242,0)");
+        ctx.fillStyle = grad;
+
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, padT + innerH);
+        ctx.lineTo(points[0].x, points[0].y);
+
+        for (let i = 0; i < points.length - 1; i++) {
+          const p0 = points[i];
+          const p1 = points[i + 1];
+          const cx = (p0.x + p1.x) / 2;
+          ctx.quadraticCurveTo(p0.x, p0.y, cx, (p0.y + p1.y) / 2);
+        }
+
+        ctx.lineTo(points.at(-1).x, points.at(-1).y);
+        ctx.lineTo(points.at(-1).x, padT + innerH);
+        ctx.closePath();
+        ctx.fill();
+
+        // axis line
+        ctx.strokeStyle = "rgba(15,23,42,0.25)";
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        ctx.moveTo(padL, padT);
+        ctx.lineTo(padL, padT + innerH);
+        ctx.lineTo(w - padR, padT + innerH);
+        ctx.stroke();
+      }
+
+      // compute stats
+      function updateStats(data) {
+        const peak = Math.max(...data);
+        const peakIndex = data.indexOf(peak);
+
+        // based on xlabels: Now, 3h,6h..24h -> peakIndex mapping
+        const labelMap = [
+          "Now",
+          "3h",
+          "6h",
+          "9h",
+          "12h",
+          "15h",
+          "18h",
+          "21h",
+          "24h",
+        ];
+        const peakLabel = labelMap[Math.min(peakIndex, labelMap.length - 1)];
+
+        const avg = Math.round(data.reduce((a, b) => a + b, 0) / data.length);
+
+        peakAqiEl.textContent = peak;
+        peakTimeEl.textContent = peakLabel;
+        avgAqiEl.textContent = avg;
+
+        // trend
+        const trend = data.at(-1) < data[0] ? "Improving" : "Worsening";
+        trendText.textContent = trend;
+
+        summaryText.textContent =
+          `Air quality is expected to ${trend.toLowerCase()} from ${
+            data[0]
+          } to ${data.at(-1)}. ` +
+          `Best time for outdoor activities will be around ${
+            labelMap[labelMap.length - 1]
+          }.`;
+      }
+
+      // Toggle logic
+      function setActive(btn) {
+        [btn24, btnTomorrow].forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+      }
+
+      btn24.addEventListener("click", () => {
+        currentData = data24h;
+        setActive(btn24);
+        updateStats(currentData);
+        drawChart(currentData);
+      });
+
+      btnTomorrow.addEventListener("click", () => {
+        currentData = dataTomorrow;
+        setActive(btnTomorrow);
+        updateStats(currentData);
+        drawChart(currentData);
+      });
+
+      // Init
+      resizeCanvas();
+      updateStats(currentData);
+      drawChart(currentData);
+    </script>
+  </body>
+</html>
