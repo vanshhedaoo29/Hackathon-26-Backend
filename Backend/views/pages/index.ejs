@@ -1,0 +1,1233 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AQI Monitor - Dashboard</title>
+
+    <!-- <link rel="stylesheet" href="/Styles/style.css" />
+  <script defer src="script.js"></script> -->
+
+    <!-- Icons -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --bg: #f4f7fb;
+        --card: #ffffff;
+        --text: #0f172a;
+        --muted: #64748b;
+        --blue: #1d4ed8;
+        --shadow: 0 10px 25px rgba(15, 23, 42, 0.07);
+        --radius: 16px;
+        --border: rgba(15, 23, 42, 0.06);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial,
+          sans-serif;
+        color: var(--text);
+        background: var(--bg);
+      }
+
+      /* Navbar */
+      .navbar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: #f7faff;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .nav-container {
+        max-width: 1180px;
+        margin: auto;
+        padding: 14px 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+        letter-spacing: 0.2px;
+      }
+
+      .logo {
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        background: #e7f5ec;
+        border: 1px solid rgba(15, 23, 42, 0.06);
+      }
+
+      .logo.small {
+        width: 32px;
+        height: 32px;
+        border-radius: 12px;
+        background: rgba(29, 78, 216, 0.08);
+      }
+
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+      }
+
+      .nav-links a {
+        text-decoration: none;
+        color: #1f2a44;
+        font-weight: 600;
+        font-size: 13px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        transition: 0.2s ease;
+      }
+
+      .nav-links a:hover {
+        background: rgba(29, 78, 216, 0.08);
+      }
+
+      .nav-links a.active {
+        background: rgba(29, 78, 216, 0.15);
+        color: var(--blue);
+      }
+
+      /* Mobile Nav */
+      .nav-toggle {
+        display: none;
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+      }
+
+      .nav-toggle span {
+        display: block;
+        width: 24px;
+        height: 2px;
+        background: #1f2a44;
+        margin: 5px 0;
+        border-radius: 2px;
+      }
+
+      .mobile-menu {
+        display: none;
+        flex-direction: column;
+        padding: 10px 18px 16px;
+        gap: 8px;
+      }
+
+      .mobile-menu a {
+        text-decoration: none;
+        color: #1f2a44;
+        font-weight: 700;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.6);
+        border: 1px solid var(--border);
+      }
+
+      .mobile-menu a.active {
+        border-color: rgba(29, 78, 216, 0.25);
+        background: rgba(29, 78, 216, 0.12);
+        color: var(--blue);
+      }
+
+      /* Main */
+      .page {
+        max-width: 1180px;
+        margin: auto;
+        padding: 28px 18px 40px;
+      }
+
+      .hero {
+        text-align: center;
+        margin: 8px 0 22px;
+      }
+
+      .hero h1 {
+        font-size: clamp(22px, 3vw, 34px);
+        font-weight: 900;
+        color: #0b2b80;
+        letter-spacing: -0.6px;
+      }
+
+      .hero p {
+        margin-top: 8px;
+        color: var(--muted);
+        font-weight: 500;
+      }
+
+      .hero .muted {
+        font-weight: 700;
+        color: #334155;
+      }
+
+      /* Cards */
+      .card {
+        background: var(--card);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+      }
+
+      .location-card {
+        display: grid;
+        grid-template-columns: 56px 1fr;
+        gap: 14px;
+        align-items: center;
+        padding: 16px;
+        margin-bottom: 18px;
+      }
+
+      .location-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: grid;
+        place-items: center;
+        background: rgba(29, 78, 216, 0.1);
+        border: 1px solid rgba(29, 78, 216, 0.14);
+      }
+
+      .location-input label {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 700;
+        margin-bottom: 6px;
+      }
+
+      .location-input select {
+        width: 100%;
+        border: 0;
+        outline: none;
+        font-weight: 700;
+        padding: 12px 14px;
+        background: rgba(15, 23, 42, 0.03);
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        border-radius: 12px;
+        color: #0f172a;
+      }
+
+      /* Grid Layout */
+      .grid {
+        display: grid;
+        grid-template-columns: 380px 1fr;
+        gap: 18px;
+      }
+
+      .aqi-card {
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+
+      .aqi-top {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .aqi-value-box {
+        width: 160px;
+        height: 110px;
+        border-radius: 18px;
+        background: #fff4cc;
+        display: grid;
+        place-items: center;
+        position: relative;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+      }
+
+      .aqi-value {
+        font-size: 54px;
+        font-weight: 900;
+        letter-spacing: -1px;
+      }
+
+      .tiny-badge {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        width: 28px;
+        height: 28px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        display: grid;
+        place-items: center;
+      }
+
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        background: rgba(245, 158, 11, 0.14);
+        color: #8a5b00;
+        border: 1px solid rgba(245, 158, 11, 0.25);
+        border-radius: 999px;
+        padding: 10px 16px;
+        font-weight: 800;
+        font-size: 13px;
+      }
+
+      .status-pill .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: #f59e0b;
+      }
+
+      .aqi-msg {
+        text-align: center;
+        color: var(--muted);
+        font-weight: 500;
+        line-height: 1.5;
+        padding: 6px 8px;
+      }
+
+      .aqi-bottom {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+        margin-top: 6px;
+      }
+
+      .mini-card {
+        padding: 12px 12px;
+        background: rgba(15, 23, 42, 0.03);
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        border-radius: 14px;
+        text-align: center;
+      }
+
+      .mini-title {
+        font-size: 11px;
+        color: var(--muted);
+        font-weight: 800;
+        margin-bottom: 6px;
+      }
+
+      .mini-value {
+        font-weight: 900;
+        color: #0f172a;
+      }
+
+      .pollutant-card {
+        padding: 18px;
+      }
+
+      .card-title {
+        font-weight: 900;
+        margin-bottom: 14px;
+        color: #0f172a;
+      }
+
+      .pollutant-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+      }
+
+      .poll-box {
+        background: rgba(15, 23, 42, 0.03);
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        border-radius: 14px;
+        padding: 16px;
+        text-align: center;
+      }
+
+      .poll-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 14px;
+        background: rgba(14, 165, 233, 0.12);
+        border: 1px solid rgba(14, 165, 233, 0.18);
+        display: grid;
+        place-items: center;
+        margin: 0 auto 10px;
+      }
+
+      .poll-name {
+        font-size: 12px;
+        color: var(--muted);
+        font-weight: 800;
+      }
+
+      .poll-val {
+        margin-top: 6px;
+        font-size: 15px;
+        font-weight: 900;
+      }
+
+      .poll-val small {
+        font-size: 12px;
+        color: #475569;
+        font-weight: 800;
+      }
+
+      /* AQI Scale */
+      .scale-card {
+        padding: 18px;
+        grid-column: 2 / 3;
+      }
+
+      .scale-wrap {
+        display: grid;
+        gap: 16px;
+      }
+
+      .scale-bar {
+        height: 12px;
+        border-radius: 999px;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid rgba(15, 23, 42, 0.08);
+        background: linear-gradient(
+          90deg,
+          #7bf1a8 0%,
+          #c8f57d 18%,
+          #ffe48a 38%,
+          #ffb784 58%,
+          #ff9b9b 78%,
+          #ff6b6b 100%
+        );
+      }
+
+      .marker {
+        position: absolute;
+        top: -5px;
+        width: 14px;
+        height: 14px;
+        border-radius: 3px;
+        border: 2px solid #0f172a;
+        background: white;
+        transform: rotate(45deg);
+        left: 50%;
+      }
+
+      .scale-labels {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 14px;
+        padding-top: 2px;
+      }
+
+      .scale-item {
+        display: flex;
+        gap: 10px;
+        align-items: flex-start;
+      }
+
+      .scale-item b {
+        font-size: 13px;
+      }
+
+      .scale-item small {
+        display: block;
+        color: var(--muted);
+        font-weight: 700;
+        margin-top: 2px;
+        font-size: 12px;
+      }
+
+      .legend {
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        margin-top: 4px;
+      }
+
+      .good {
+        background: #7bf1a8;
+      }
+      .sat {
+        background: #c8f57d;
+      }
+      .mod {
+        background: #ffe48a;
+      }
+      .poor {
+        background: #ffb784;
+      }
+      .vpoor {
+        background: #ff9b9b;
+      }
+      .sev {
+        background: #ff6b6b;
+      }
+
+      .scale-summary {
+        width: 240px;
+        justify-self: end;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px;
+        background: rgba(15, 23, 42, 0.03);
+        border: 1px solid rgba(15, 23, 42, 0.06);
+        border-radius: 16px;
+      }
+
+      .scale-summary b {
+        font-weight: 900;
+      }
+
+      .scale-summary small {
+        display: block;
+        margin-top: 2px;
+        color: var(--muted);
+        font-weight: 800;
+      }
+
+      /* Footer */
+      .footer {
+        margin-top: 26px;
+        background: #ffffff;
+        border-top: 1px solid var(--border);
+      }
+
+      .footer-inner {
+        max-width: 1180px;
+        margin: auto;
+        padding: 24px 18px;
+        display: grid;
+        grid-template-columns: 1.4fr 1fr 1fr;
+        gap: 16px;
+      }
+
+      .footer-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .footer-desc {
+        color: var(--muted);
+        font-weight: 500;
+        line-height: 1.6;
+        max-width: 420px;
+      }
+
+      .footer-col b {
+        font-weight: 900;
+        display: inline-block;
+        margin-bottom: 10px;
+      }
+
+      .footer-col a {
+        display: block;
+        text-decoration: none;
+        color: #334155;
+        font-weight: 700;
+        font-size: 13px;
+        margin: 8px 0;
+      }
+
+      .footer-col p {
+        color: #334155;
+        font-weight: 600;
+        margin: 8px 0;
+        font-size: 13px;
+      }
+
+      .footer-bottom {
+        border-top: 1px solid var(--border);
+        text-align: center;
+        padding: 14px 12px;
+        color: var(--muted);
+        font-weight: 700;
+        font-size: 13px;
+      }
+
+      .heart {
+        color: #ef4444;
+      }
+
+      /* RESPONSIVE */
+      @media (max-width: 980px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+
+        .scale-card {
+          grid-column: auto;
+        }
+
+        .pollutant-grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        .scale-summary {
+          width: 100%;
+          justify-self: start;
+        }
+      }
+
+      @media (max-width: 760px) {
+        .nav-links {
+          display: none;
+        }
+
+        .nav-toggle {
+          display: block;
+        }
+
+        .mobile-menu.show {
+          display: flex;
+        }
+
+        .pollutant-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .scale-labels {
+          grid-template-columns: 1fr 1fr;
+        }
+
+        .footer-inner {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- NAVBAR -->
+    <header class="navbar">
+      <div class="nav-container">
+        <div class="brand">
+          <div class="logo">
+            <!-- Icon -->
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+              <path
+                d="M7 14c-1.66 0-3 1.34-3 3s1.34 3 3 3h10a4 4 0 0 0 0-8h-.5A5.5 5.5 0 0 0 6 10.5"
+                stroke="#0F9D58"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+              <path
+                d="M8 5l2 2-2 2"
+                stroke="#0F9D58"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M4 7h6"
+                stroke="#0F9D58"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
+            </svg>
+          </div>
+          <span class="brand-text">AQI Monitor</span>
+        </div>
+
+        <nav class="nav-links">
+          <a class="active" href="#">Dashboard</a>
+          <a href="forecast.html">Forecast</a>
+          <a href="history.html">History</a>
+          <a href="health.html">Health Advisory</a>
+          <a href="about.html">About</a>
+        </nav>
+
+        <button
+          class="nav-toggle"
+          id="navToggle"
+          aria-label="Toggle navigation"
+        >
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+
+      <!-- Mobile Menu -->
+      <div class="mobile-menu" id="mobileMenu">
+        <a class="active" href="#">Dashboard</a>
+        <a href="#">Forecast</a>
+        <a href="#">History</a>
+        <a href="#">Health Advisory</a>
+        <a href="#">About</a>
+      </div>
+    </header>
+
+    <!-- MAIN -->
+    <main class="page">
+      <section class="hero">
+        <h1>Air Quality Index Dashboard</h1>
+        <p>
+          Real-time air quality monitoring for
+          <span class="muted">Delhi, Delhi</span>
+        </p>
+      </section>
+
+      <!-- Location selector -->
+      <section class="location-card card">
+        <div class="location-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+            <path
+              d="M12 21s7-4.4 7-11a7 7 0 1 0-14 0c0 6.6 7 11 7 11Z"
+              stroke="#1D4ED8"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <path
+              d="M12 10.5a2.5 2.5 0 1 0 0-5 2.5 2.5 0 0 0 0 5Z"
+              stroke="#1D4ED8"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+          </svg>
+        </div>
+
+        <div class="location-input">
+          <label>Location</label>
+          <select id="locationSelect">
+            <option selected>Delhi, Delhi</option>
+            <option>Mumbai, Maharashtra</option>
+            <option>Bengaluru, Karnataka</option>
+            <option>Hyderabad, Telangana</option>
+            <option>Kolkata, West Bengal</option>
+          </select>
+        </div>
+      </section>
+
+      <!-- GRID -->
+      <section class="grid">
+        <!-- Left: AQI summary -->
+        <article class="card aqi-card">
+          <div class="aqi-top">
+            <div class="aqi-value-box">
+              <div class="aqi-value" id="aqiValue">187</div>
+              <div class="tiny-badge">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M7 13h10M7 9h6M7 17h8"
+                    stroke="#1D4ED8"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </div>
+            </div>
+
+            <div class="status-pill" id="aqiStatus">
+              <span class="dot"></span>
+              Moderate
+            </div>
+          </div>
+
+          <p class="aqi-msg" id="aqiMessage">
+            Air quality is unhealthy for sensitive groups. Reduce prolonged
+            outdoor activities.
+          </p>
+
+          <div class="aqi-bottom">
+            <div class="mini-card">
+              <div class="mini-title">Dominant Pollutant</div>
+              <div class="mini-value" id="dominantPollutant">PM2.5</div>
+            </div>
+            <div class="mini-card">
+              <div class="mini-title">Last Updated</div>
+              <div class="mini-value" id="lastUpdated">02:24 PM</div>
+            </div>
+          </div>
+        </article>
+
+        <!-- Right: Pollutant levels -->
+        <article class="card pollutant-card">
+          <div class="card-title">Pollutant Levels</div>
+
+          <div class="pollutant-grid">
+            <!-- PM2.5 -->
+            <div class="poll-box">
+              <div class="poll-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M12 2s5 6 5 10a5 5 0 1 1-10 0c0-4 5-10 5-10Z"
+                    stroke="#0EA5E9"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </div>
+              <div class="poll-name">PM2.5</div>
+              <div class="poll-val">
+                <span id="pm25Val">112</span> <small>µg/m³</small>
+              </div>
+            </div>
+
+            <!-- PM10 -->
+            <div class="poll-box">
+              <div class="poll-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M4 12h12M4 8h9M4 16h15"
+                    stroke="#0EA5E9"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </div>
+              <div class="poll-name">PM10</div>
+              <div class="poll-val">
+                <span id="pm10Val">178</span> <small>µg/m³</small>
+              </div>
+            </div>
+
+            <!-- NO2 -->
+            <div class="poll-box">
+              <div class="poll-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M12 3v18M7 8l5-5 5 5"
+                    stroke="#0EA5E9"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </div>
+              <div class="poll-name">NO₂</div>
+              <div class="poll-val">
+                <span id="no2Val">45</span> <small>ppb</small>
+              </div>
+            </div>
+
+            <!-- SO2 -->
+            <div class="poll-box">
+              <div class="poll-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M12 2s5 6 5 10a5 5 0 1 1-10 0c0-4 5-10 5-10Z"
+                    stroke="#0EA5E9"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </div>
+              <div class="poll-name">SO₂</div>
+              <div class="poll-val">
+                <span id="so2Val">12</span> <small>ppb</small>
+              </div>
+            </div>
+
+            <!-- CO -->
+            <div class="poll-box">
+              <div class="poll-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M13 2L3 14h9l-1 8 10-12h-9l1-8Z"
+                    stroke="#0EA5E9"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                </svg>
+              </div>
+              <div class="poll-name">CO</div>
+              <div class="poll-val">
+                <span id="coVal">1.2</span> <small>ppm</small>
+              </div>
+            </div>
+
+            <!-- O3 -->
+            <div class="poll-box">
+              <div class="poll-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path
+                    d="M12 2v2m0 16v2m10-10h-2M4 12H2m16.95 6.95-1.41-1.41M6.46 6.46 5.05 5.05m13.9 0-1.41 1.41M6.46 17.54 5.05 18.95"
+                    stroke="#0EA5E9"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                  />
+                </svg>
+              </div>
+              <div class="poll-name">O₃</div>
+              <div class="poll-val">
+                <span id="o3Val">28</span> <small>ppb</small>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- AQI scale -->
+        <article class="card scale-card">
+          <div class="card-title">AQI Scale</div>
+
+          <div class="scale-wrap">
+            <div class="scale-bar">
+              <span class="marker" id="aqiMarker" title="Current AQI"></span>
+            </div>
+
+            <div class="scale-labels">
+              <div class="scale-item">
+                <span class="legend good"></span>
+                <div>
+                  <b>Good</b>
+                  <small>0-50</small>
+                </div>
+              </div>
+
+              <div class="scale-item">
+                <span class="legend sat"></span>
+                <div>
+                  <b>Satisfactory</b>
+                  <small>51-100</small>
+                </div>
+              </div>
+
+              <div class="scale-item">
+                <span class="legend mod"></span>
+                <div>
+                  <b>Moderate</b>
+                  <small>101-200</small>
+                </div>
+              </div>
+
+              <div class="scale-item">
+                <span class="legend poor"></span>
+                <div>
+                  <b>Poor</b>
+                  <small>201-300</small>
+                </div>
+              </div>
+
+              <div class="scale-item">
+                <span class="legend vpoor"></span>
+                <div>
+                  <b>Very Poor</b>
+                  <small>301-400</small>
+                </div>
+              </div>
+
+              <div class="scale-item">
+                <span class="legend sev"></span>
+                <div>
+                  <b>Severe</b>
+                  <small>401-500</small>
+                </div>
+              </div>
+            </div>
+
+            <div class="scale-summary">
+              <span class="legend mod"></span>
+              <div>
+                <b id="scaleSummaryTitle">Moderate</b>
+                <small id="scaleSummaryRange">101-200</small>
+              </div>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="footer-col">
+          <div class="footer-brand">
+            <div class="logo small">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                <path
+                  d="M7 14c-1.66 0-3 1.34-3 3s1.34 3 3 3h10a4 4 0 0 0 0-8h-.5A5.5 5.5 0 0 0 6 10.5"
+                  stroke="#1D4ED8"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                />
+              </svg>
+            </div>
+            <b>AQI Monitor</b>
+          </div>
+          <p class="footer-desc">
+            Real-time air quality monitoring and AI-powered predictions for
+            healthier living.
+          </p>
+        </div>
+
+        <div class="footer-col">
+          <b>Quick Links</b>
+          <a href="#">Dashboard</a>
+          <a href="#">Forecast</a>
+          <a href="#">Health Advisory</a>
+          <a href="#">About</a>
+        </div>
+
+        <div class="footer-col">
+          <b>Information</b>
+          <p>📌 Data Source: CPCB / OpenAQ</p>
+          <p>⚠️ AQI values are indicative</p>
+          <p>💡 Developed for Hackathon</p>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        © 2026 AQI Monitor. Built with <span class="heart">❤</span> for cleaner
+        air.
+      </div>
+    </footer>
+
+    <script>
+      // Mobile menu
+      const navToggle = document.getElementById("navToggle");
+      const mobileMenu = document.getElementById("mobileMenu");
+
+      navToggle.addEventListener("click", () => {
+        mobileMenu.classList.toggle("show");
+      });
+
+      // Dynamic AQI marker position
+      const aqiValueEl = document.getElementById("aqiValue");
+      const marker = document.getElementById("aqiMarker");
+      const scaleSummaryTitle = document.getElementById("scaleSummaryTitle");
+      const scaleSummaryRange = document.getElementById("scaleSummaryRange");
+      const statusPill = document.getElementById("aqiStatus");
+
+      // Adjust marker on page load
+      function setMarker(aqi) {
+        // clamp 0..500
+        const clamped = Math.min(500, Math.max(0, aqi));
+        const percent = (clamped / 500) * 100;
+        marker.style.left = `${percent}%`;
+
+        // Label logic (India AQI style ranges)
+        const band =
+          aqi <= 50
+            ? ["Good", "0-50"]
+            : aqi <= 100
+            ? ["Satisfactory", "51-100"]
+            : aqi <= 200
+            ? ["Moderate", "101-200"]
+            : aqi <= 300
+            ? ["Poor", "201-300"]
+            : aqi <= 400
+            ? ["Very Poor", "301-400"]
+            : ["Severe", "401-500"];
+
+        scaleSummaryTitle.textContent = band[0];
+        scaleSummaryRange.textContent = band[1];
+
+        // Update pill UI
+        statusPill.innerHTML = `<span class="dot"></span> ${band[0]}`;
+      }
+
+      setMarker(parseInt(aqiValueEl.textContent.trim(), 10) || 0);
+
+      // Location select (demo update)
+      const locationSelect = document.getElementById("locationSelect");
+
+      locationSelect.addEventListener("change", () => {
+        // Just a demo: random AQI
+        const randomAQI = Math.floor(Math.random() * 320) + 40;
+        aqiValueEl.textContent = randomAQI;
+        setMarker(randomAQI);
+
+        // update time
+        const now = new Date();
+        const hours = now.getHours();
+        const minutes = String(now.getMinutes()).padStart(2, "0");
+        const ampm = hours >= 12 ? "PM" : "AM";
+        const hh = ((hours + 11) % 12) + 1;
+        document.getElementById(
+          "lastUpdated"
+        ).textContent = `${hh}:${minutes} ${ampm}`;
+      });
+
+      // Navbar Mobile Toggle
+      const hamburger = document.getElementById("hamburger");
+      const navLinks = document.getElementById("navLinks");
+
+      hamburger.addEventListener("click", () => {
+        navLinks.classList.toggle("show");
+      });
+
+      // Chart data sets (24 Hours + Tomorrow)
+      const labels24 = [
+        "Now",
+        "3h",
+        "6h",
+        "9h",
+        "12h",
+        "15h",
+        "18h",
+        "21h",
+        "24h",
+      ];
+      const data24 = [145, 152, 168, 178, 165, 142, 128, 135, 125];
+
+      const labelsTomorrow = [
+        "0h",
+        "3h",
+        "6h",
+        "9h",
+        "12h",
+        "15h",
+        "18h",
+        "21h",
+        "24h",
+      ];
+      const dataTomorrow = [132, 140, 158, 171, 160, 145, 138, 130, 126];
+
+      // Elements
+      const btn24 = document.getElementById("btn24");
+      const btnTomorrow = document.getElementById("btnTomorrow");
+
+      const peakVal = document.getElementById("peakVal");
+      const peakHour = document.getElementById("peakHour");
+      const avgVal = document.getElementById("avgVal");
+      const summaryText = document.getElementById("summaryText");
+
+      // Helpers
+      function calcPeak(values, labels) {
+        let max = -Infinity;
+        let idx = 0;
+        values.forEach((v, i) => {
+          if (v > max) {
+            max = v;
+            idx = i;
+          }
+        });
+        return { max, time: labels[idx] };
+      }
+
+      function calcAvg(values) {
+        const sum = values.reduce((a, b) => a + b, 0);
+        return Math.round(sum / values.length);
+      }
+
+      function updateSummary(values, labels) {
+        const start = values[0];
+        const end = values[values.length - 1];
+        const best = Math.min(...values);
+        const bestIndex = values.indexOf(best);
+        const bestTime = labels[bestIndex];
+
+        summaryText.textContent = `Air quality is expected to ${
+          end < start ? "improve" : "change"
+        } from ${start} to ${end}. Best time for outdoor activities will be around ${bestTime}.`;
+      }
+
+      // Chart init
+      const ctx = document.getElementById("aqiChart").getContext("2d");
+
+      const gradient = ctx.createLinearGradient(0, 0, 0, 260);
+      gradient.addColorStop(0, "rgba(45, 161, 255, 0.25)");
+      gradient.addColorStop(1, "rgba(45, 161, 255, 0)");
+
+      let chart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels: labels24,
+          datasets: [
+            {
+              label: "AQI",
+              data: data24,
+              borderColor: "#2da1ff",
+              backgroundColor: gradient,
+              fill: true,
+              tension: 0.35,
+              borderWidth: 3,
+              pointRadius: 0,
+              pointHoverRadius: 5,
+            },
+          ],
+        },
+        options: {
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => ` AQI: ${ctx.parsed.y}`,
+              },
+            },
+          },
+          scales: {
+            x: {
+              grid: { color: "#edf2ff" },
+              ticks: { color: "#6b7a90", font: { weight: "600" } },
+            },
+            y: {
+              min: 0,
+              max: 180,
+              ticks: {
+                stepSize: 45,
+                color: "#6b7a90",
+                font: { weight: "600" },
+              },
+              grid: { color: "#edf2ff" },
+            },
+          },
+        },
+      });
+
+      // Default values update
+      (function initStats() {
+        const peak = calcPeak(data24, labels24);
+        peakVal.textContent = peak.max;
+        peakHour.textContent = peak.time;
+        avgVal.textContent = calcAvg(data24);
+        updateSummary(data24, labels24);
+      })();
+
+      // Toggle Logic
+      function setActive(btn) {
+        [btn24, btnTomorrow].forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+      }
+
+      btn24.addEventListener("click", () => {
+        setActive(btn24);
+
+        chart.data.labels = labels24;
+        chart.data.datasets[0].data = data24;
+        chart.update();
+
+        const peak = calcPeak(data24, labels24);
+        peakVal.textContent = peak.max;
+        peakHour.textContent = peak.time;
+        avgVal.textContent = calcAvg(data24);
+        updateSummary(data24, labels24);
+      });
+
+      btnTomorrow.addEventListener("click", () => {
+        setActive(btnTomorrow);
+
+        chart.data.labels = labelsTomorrow;
+        chart.data.datasets[0].data = dataTomorrow;
+        chart.update();
+
+        const peak = calcPeak(dataTomorrow, labelsTomorrow);
+        peakVal.textContent = peak.max;
+        peakHour.textContent = peak.time;
+        avgVal.textContent = calcAvg(dataTomorrow);
+        updateSummary(dataTomorrow, labelsTomorrow);
+      });
+    </script>
+  </body>
+</html>
