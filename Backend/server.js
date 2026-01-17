@@ -21,7 +21,13 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/", (req, res) => {
   res.render("pages/index", {
-    title: "AQI Dashboard", // optional variable for EJS
+    title: "AQI Monitor - Dashboard", // optional variable for EJS
+  });
+});
+
+app.get("/about", (req, res) => {
+  res.render("pages/about", {
+    title: "AQI Monitor - About", 
   });
 });
 
