@@ -1,4 +1,7 @@
 require("dotenv").config(); // MUST be first line
+const cron = require("node-cron");
+// const { saveFromAPI } = require("./services/historySaver");
+
 
 const express = require("express");
 const cors = require("cors");
@@ -6,6 +9,8 @@ const path = require("path");
 
 const chatRoutes = require("./routes/chatroutes");
 const pageRoutes = require("./routes/pageRoutes");
+const historyRoutes = require("./routes/historyRoutes");
+const aqiRoutes = require("./routes/aqiRoutes");
 
 const app = express();
 
@@ -27,6 +32,13 @@ app.get("/", (req, res) => {
 
 app.use("/", pageRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/history", historyRoutes);
+app.use("/api/aqi", aqiRoutes);
+
+
+// cron.schedule("*/1 * * * *", () => {  // every minute for testing
+//   saveFromAPI("Delhi");
+// });
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {

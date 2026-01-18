@@ -1,0 +1,132 @@
+[
+  {
+    "city": "Delhi",
+    "aqi": 110,
+    "category": "Moderate",
+    "dominantPollutant": "PM2.5",
+    "pollutants": { "pm25": 110, "pm10": 95, "no2": 30, "so2": 10, "nh3": 6, "ozone": 42 },
+    "lastUpdated": "2026-01-18T07:00:00"
+  },
+  {
+    "city": "Delhi",
+    "aqi": 120,
+    "category": "Moderate",
+    "dominantPollutant": "PM10",
+    "pollutants": { "pm25": 115, "pm10": 120, "no2": 35, "so2": 12, "nh3": 7, "ozone": 45 },
+    "lastUpdated": "2026-01-18T10:00:00"
+  },
+  {
+    "city": "Delhi",
+    "aqi": 130,
+    "category": "Moderate",
+    "dominantPollutant": "PM10",
+    "pollutants": { "pm25": 125, "pm10": 130, "no2": 38, "so2": 13, "nh3": 8, "ozone": 48 },
+    "lastUpdated": "2026-01-18T13:00:00"
+  },
+  {
+    "city": "Delhi",
+    "aqi": 140,
+    "category": "Moderate",
+    "dominantPollutant": "PM2.5",
+    "pollutants": { "pm25": 140, "pm10": 135, "no2": 40, "so2": 14, "nh3": 9, "ozone": 50 },
+    "lastUpdated": "2026-01-18T16:00:00"
+  },
+  {
+    "city": "Delhi",
+    "aqi": 150,
+    "category": "Poor",
+    "dominantPollutant": "PM10",
+    "pollutants": { "pm25": 145, "pm10": 150, "no2": 42, "so2": 15, "nh3": 10, "ozone": 55 },
+    "lastUpdated": "2026-01-18T19:00:00"
+  },
+
+  {
+    "city": "Delhi",
+    "aqi": 95,
+    "category": "Satisfactory",
+    "dominantPollutant": "PM2.5",
+    "pollutants": { "pm25": 95, "pm10": 88, "no2": 28, "so2": 9, "nh3": 5, "ozone": 40 },
+    "lastUpdated": "2026-01-17T09:00:00"
+  },
+  {
+    "city": "Delhi",
+    "aqi": 90,
+    "category": "Good",
+    "dominantPollutant": "PM10",
+    "pollutants": { "pm25": 88, "pm10": 90, "no2": 26, "so2": 8, "nh3": 4, "ozone": 38 },
+    "lastUpdated": "2026-01-16T09:00:00"
+  },
+  {
+    "city": "Delhi",
+    "aqi": 100,
+    "category": "Satisfactory",
+    "dominantPollutant": "PM2.5",
+    "pollutants": { "pm25": 100, "pm10": 92, "no2": 29, "so2": 9, "nh3": 5, "ozone": 41 },
+    "lastUpdated": "2026-01-15T09:00:00"
+  },
+  {
+    "city": "Delhi",
+    "aqi": 105,
+    "category": "Moderate",
+    "dominantPollutant": "PM10",
+    "pollutants": { "pm25": 102, "pm10": 105, "no2": 31, "so2": 10, "nh3": 6, "ozone": 43 },
+    "lastUpdated": "2026-01-14T09:00:00"
+  },
+  {
+    "city": "Delhi",
+    "aqi": 98,
+    "category": "Satisfactory",
+    "dominantPollutant": "PM2.5",
+    "pollutants": { "pm25": 98, "pm10": 90, "no2": 27, "so2": 9, "nh3": 5, "ozone": 39 },
+    "lastUpdated": "2026-01-13T09:00:00"
+  },
+  {
+    "city": "Delhi",
+    "aqi": 88,
+    "category": "Good",
+    "dominantPollutant": "PM10",
+    "pollutants": { "pm25": 85, "pm10": 88, "no2": 25, "so2": 7, "nh3": 4, "ozone": 36 },
+    "lastUpdated": "2026-01-12T09:00:00"
+  },
+  {
+    "city": "Delhi",
+    "aqi": 92,
+    "category": "Satisfactory",
+    "dominantPollutant": "PM2.5",
+    "pollutants": { "pm25": 92, "pm10": 89, "no2": 26, "so2": 8, "nh3": 5, "ozone": 37 },
+    "lastUpdated": "2026-01-11T09:00:00"
+  },
+
+  {
+    "city": "Delhi",
+    "aqi": 135,
+    "category": "Moderate",
+    "dominantPollutant": "PM10",
+    "pollutants": { "pm25": 130, "pm10": 135, "no2": 40, "so2": 14, "nh3": 9, "ozone": 48 },
+    "lastUpdated": "2026-01-05T10:00:00"
+  },
+  {
+    "city": "Delhi",
+    "aqi": 145,
+    "category": "Poor",
+    "dominantPollutant": "PM2.5",
+    "pollutants": { "pm25": 145, "pm10": 140, "no2": 42, "so2": 15, "nh3": 10, "ozone": 52 },
+    "lastUpdated": "2026-01-03T10:00:00"
+  },
+  {
+    "city": "Delhi",
+    "aqi": 155,
+    "category": "Poor",
+    "dominantPollutant": "PM10",
+    "pollutants": { "pm25": 150, "pm10": 155, "no2": 45, "so2": 16, "nh3": 11, "ozone": 55 },
+    "lastUpdated": "2025-12-28T10:00:00"
+  },
+  {
+    "city": "Delhi",
+    "aqi": 165,
+    "category": "Poor",
+    "dominantPollutant": "PM2.5",
+    "pollutants": { "pm25": 160, "pm10": 165, "no2": 48, "so2": 17, "nh3": 12, "ozone": 58 },
+    "lastUpdated": "2025-12-22T10:00:00"
+  }
+]
