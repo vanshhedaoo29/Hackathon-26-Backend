@@ -30,6 +30,18 @@ app.get("/", (req, res) => {
   });
 });
 
+app.get("/health", (req, res) => {
+  res.render("pages/health", {
+    title: "AQI Monitor - Health Advisory", 
+  });
+});
+
+app.get("/forecast", (req, res) => {
+  res.render("pages/forecast", {
+    title: "AQI Monitor - Forecast", 
+  });
+});
+
 app.get("/about", (req, res) => {
   res.render("pages/about", {
     title: "AQI Monitor - About", 

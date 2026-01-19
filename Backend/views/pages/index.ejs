@@ -615,63 +615,8 @@
   </head>
 
   <body>
-    <!-- NAVBAR -->
-    <header class="navbar">
-      <div class="nav-container">
-        <div class="brand">
-          <div class="logo">
-            <!-- Icon -->
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
-              <path
-                d="M7 14c-1.66 0-3 1.34-3 3s1.34 3 3 3h10a4 4 0 0 0 0-8h-.5A5.5 5.5 0 0 0 6 10.5"
-                stroke="#0F9D58"
-                stroke-width="2"
-                stroke-linecap="round"
-              />
-              <path
-                d="M8 5l2 2-2 2"
-                stroke="#0F9D58"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-              <path
-                d="M4 7h6"
-                stroke="#0F9D58"
-                stroke-width="2"
-                stroke-linecap="round"
-              />
-            </svg>
-          </div>
-          <span class="brand-text">AQI Monitor</span>
-        </div>
+    <%- include("../partials/navbar", { activePage: "dashboard" }) %>
 
-        <nav class="nav-links">
-          <a class="active" href="#">Dashboard</a>
-          <a href="forecast.html">Forecast</a>
-          <a href="history.html">History</a>
-          <a href="health.html">Health Advisory</a>
-          <a href="about.html">About</a>
-        </nav>
-
-        <button
-          class="nav-toggle"
-          id="navToggle"
-          aria-label="Toggle navigation"
-        >
-          <span></span><span></span><span></span>
-        </button>
-      </div>
-
-      <!-- Mobile Menu -->
-      <div class="mobile-menu" id="mobileMenu">
-        <a class="active" href="#">Dashboard</a>
-        <a href="#">Forecast</a>
-        <a href="#">History</a>
-        <a href="#">Health Advisory</a>
-        <a href="#">About</a>
-      </div>
-    </header>
 
     <!-- MAIN -->
     <main class="page">

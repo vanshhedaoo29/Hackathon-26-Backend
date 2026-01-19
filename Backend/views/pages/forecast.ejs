@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AirIQ | Real-time AQI Forecast & Monitoring</title>
+    
+    <!-- Font Family from Dashboard -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    
+    <!-- Bootstrap 5 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Animate.css for animations -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    
+    <style>
+        /* ===== FIX NAVBAR POSITIONING ===== */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            overflow-x: hidden; /* Keep horizontal hidden */
+            overflow-y: auto; /* Allow vertical scrolling */
+        }
+        
+        
+
+        
+        /* ===== MOBILE MENU ===== */
+        .mobile-menu {
+            display: none;
+            flex-direction: column;
+            padding: 15px 20px;
+            gap: 10px;
+            background: #f7faff;
+            border-top: 1px solid rgba(15, 23, 42, 0.06);
+        }
+
+        .mobile-menu.show {
+            display: flex;
+        }
+
+        .mobile-menu a {
+            text-decoration: none;
+            color: #1f2a44;
+            font-weight: 600;
+            padding: 12px 16px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(15, 23, 42, 0.08);
+            font-size: 14px;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+
+        .mobile-menu a.active {
+            border-color: rgba(29, 78, 216, 0.25);
+            background: rgba(29, 78, 216, 0.12);
+            color: #1d4ed8;
+        }
+
+        
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .nav-toggle {
+                display: block;
+            }
+
+            .footer-inner {
+                grid-template-columns: 1fr;
+                gap: 20px;
+                padding: 20px;
+            }
+            
+            main {
+                margin-top: 65px !important;
+                padding: 15px 0 30px !important;
+            }
+            
+            .brand {
+                font-size: 16px;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .nav-container {
+                padding: 10px 15px;
+            }
+            
+            main {
+                margin-top: 60px !important;
+                padding: 10px 0 20px !important;
+            }
+            
+            .brand {
+                font-size: 15px;
+            }
+            
+            .logo {
+                width: 32px;
+                height: 32px;
+            }
+        }
+
+        /* ===== ORIGINAL FORECAST PAGE STYLES (unchanged except font family) ===== */
+        /* Premium Gradient Background */
+        .premium-gradient {
+            background: linear-gradient(135deg, 
+                rgba(30, 58, 138, 0.95) 0%, 
+                rgba(56, 189, 248, 0.9) 50%, 
+                rgba(34, 197, 94, 0.85) 100%);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        /* Glassmorphism Effect */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+        
+        
+        
+        /* Glow Effect */
+        .glow-effect {
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
+            transition: box-shadow 0.3s ease;
+        }
+        
+        .glow-effect:hover {
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.5);
+        }
+        
+        /* Particle Background */
+        .particles-bg {
+            position: relative;
+            overflow: visible !important; /* CHANGED: Allow scrolling */
+        }
+        
+        .particles-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(56, 189, 248, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(34, 197, 94, 0.1) 0%, transparent 50%);
+            z-index: -1;
+        }
+        
+        /* Fix for scrolling and page jumping - REMOVED RESTRICTIONS */
+        .btn-period, .chart-type-btn, .dropdown-item {
+            cursor: pointer;
+        }
+        
+        .btn-period:focus, .chart-type-btn:focus {
+            outline: none !important;
+            box-shadow: none !important;
+        }
+        
+        /* Fast transitions */
+        .card, .btn, .nav-link, .stats-card {
+            transition: all 0.2s ease !important;
+        }
+        
+        /* ===== CUSTOM PROPERTIES ===== */
+        :root {
+            /* Color Theme - EXACTLY as specified */
+            --primary: #1E3A8A;
+            --accent: #22C55E;
+            --secondary: #38BDF8;
+            --background: #F1F5F9;
+            
+            /* AQI Category Colors - EXACTLY as specified */
+            --good: #22C55E;
+            --satisfactory: #84CC16;
+            --moderate: #FACC15;
+            --poor: #FB923C;
+            --very-poor: #EF4444;
+            --severe: #7F1D1D;
+            
+            /* UI Colors */
+            --white: #FFFFFF;
+            --dark: #0F172A;
+            --dark-2: #1E293B;
+            --gray-100: #F3F4F6;
+            --gray-200: #E5E7EB;
+            --gray-300: #D1D5DB;
+            --gray-600: #4B5563;
+            --gray-700: #374151;
+            --gray-800: #1F2937;
+            
+            /* Effects */
+            --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            --shadow-xl: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            
+            /* Transitions */
+            --transition-fast: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            /* Border Radius */
+            --radius-sm: 8px;
+            --radius: 12px;
+            --radius-md: 16px;
+            --radius-lg: 20px;
+            --radius-xl: 24px;
+            --radius-2xl: 32px;
+        }
+        
+        /* ===== BASE STYLES with Inter font ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--background);
+            color: var(--gray-800);
+            line-height: 1.6;
+        }
+        
+        /* Smooth Scrolling */
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        /* ===== TYPOGRAPHY with Inter font ===== */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+        
+        .display-4 {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 3rem;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .lead {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-size: 1.25rem;
+            color: var(--gray-600);
+        }
+        
+        .text-white-50 {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        /* ===== BUTTONS ===== */
+        .btn {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-weight: 600;
+            padding: 0.625rem 1.5rem;
+            border-radius: var(--radius);
+            transition: var(--transition);
+            border: none;
+        }
+        
+        .btn-accent {
+            background-color: var(--accent);
+            color: white;
+        }
+        
+        .btn-accent:hover {
+            background-color: #16A34A;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .btn-period {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 1.5rem 1rem !important;
+            border: 2px solid var(--gray-200) !important;
+            background: white;
+            color: var(--gray-700);
+            border-radius: var(--radius) !important;
+            transition: var(--transition);
+        }
+        
+        .btn-period:hover {
+            border-color: var(--primary) !important;
+            background: rgba(30, 58, 138, 0.05);
+        }
+        
+        .btn-check:checked + .btn-period {
+            border-color: var(--primary) !important;
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.1) 0%, rgba(56, 189, 248, 0.1) 100%);
+            color: var(--primary);
+            box-shadow: var(--shadow);
+        }
+        
+        /* ===== CARDS ===== */
+        .card {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            border: none;
+            border-radius: var(--radius-lg);
+            background: white;
+            transition: var(--transition);
+        }
+        
+        .glass-card {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .stats-card {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            height: 100%;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .stats-card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+        }
+        
+        .stats-card[data-stat="peak"]::before { background: var(--very-poor); }
+        .stats-card[data-stat="low"]::before { background: var(--good); }
+        .stats-card[data-stat="avg"]::before { background: var(--moderate); }
+        .stats-card[data-stat="health"]::before { background: var(--poor); }
+        
+        .stat-icon {
+            transition: var(--transition);
+        }
+        
+        .stats-card:hover .stat-icon {
+            transform: scale(1.2);
+        }
+        
+        /* ===== BADGES ===== */
+        .badge {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            border-radius: 50px;
+            font-size: 0.875rem;
+        }
+        
+        /* AQI Badge Colors */
+        .bg-good { background-color: var(--good) !important; color: white; }
+        .bg-satisfactory { background-color: var(--satisfactory) !important; color: white; }
+        .bg-moderate { background-color: var(--moderate) !important; color: var(--gray-800); }
+        .bg-poor { background-color: var(--poor) !important; color: white; }
+        .bg-very-poor { background-color: var(--very-poor) !important; color: white; }
+        .bg-severe { background-color: var(--severe) !important; color: white; }
+        .bg-accent { background-color: var(--accent) !important; color: white; }
+        
+        /* ===== AQI SCALE ===== */
+        .aqi-scale {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+        
+        .aqi-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        /* ===== PROGRESS BARS ===== */
+        .progress {
+            background-color: var(--gray-200);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            border-radius: 10px;
+            transition: width 0.6s ease;
+        }
+        
+        /* ===== CHART CONTAINER ===== */
+        .chart-container {
+            position: relative;
+            width: 100%;
+        }
+        
+        /* ===== PULSE ANIMATION ===== */
+        @keyframes pulse {
+            0%, 100% { 
+                opacity: 1; 
+                transform: scale(1);
+            }
+            50% { 
+                opacity: 0.8; 
+                transform: scale(1.05);
+            }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        /* ===== TREND ICON ===== */
+        .trend-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: rgba(239, 68, 68, 0.1);
+            margin-bottom: 1rem;
+        }
+        
+        @media (max-width: 576px) {
+            .navbar-nav {
+                text-align: center;
+                padding-top: 1rem;
+            }
+            
+            .nav-link {
+                justify-content: center;
+            }
+        }
+        
+        /* ===== DARK MODE SUPPORT ===== */
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --background: #0F172A;
+                --white: #1E293B;
+                --gray-800: #F1F5F9;
+            }
+            
+            body {
+                background-color: var(--background);
+                color: var(--gray-800);
+            }
+            
+            .card, .glass-card {
+                background-color: var(--white);
+            }
+            
+            .text-muted {
+                color: #94A3B8 !important;
+            }
+        }
+        
+        /* ===== ACCESSIBILITY ===== */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+        
+        :focus-visible {
+            outline: 3px solid var(--secondary);
+            outline-offset: 2px;
+            border-radius: var(--radius-sm);
+        }
+    </style>
+</head>
+<body class="particles-bg">
+    <%- include("../partials/navbar", { activePage: "forecast" }) %>
+
+    <!-- Main Content (UNCHANGED) -->
+    <main class="container">
+        <!-- Hero Section -->
+        <section class="py-5">
+            <div class="container">
+                <div class="row align-items-center">
+                    <div class="col-lg-6 mb-5 mb-lg-0">
+                        <h1 class="display-4 fw-bold mb-4 animate__animated animate__fadeInUp">
+                            <span class="text-primary">AQI Forecast</span> & 
+                            <span class="text-accent">Prediction</span>
+                        </h1>
+                        <p class="lead text-muted mb-5 animate__animated animate__fadeInUp animate__delay-1s">
+                            Advanced machine learning predictions for air quality with real-time monitoring, 
+                            health recommendations, and smart city analytics.
+                        </p>
+                        
+                        <!-- Current AQI Display -->
+                        <div class="card gradient-border animate__animated animate__fadeInLeft animate__delay-2s">
+                            <div class="card-body p-4">
+                                <div class="row align-items-center">
+                                    <div class="col">
+                                        <h6 class="text-muted mb-2">Current Location</h6>
+                                        <div class="d-flex align-items-center mb-3">
+                                            <i class="bi bi-geo-alt-fill text-primary fs-4 me-3"></i>
+                                            <h3 class="fw-bold mb-0">New Delhi, India</h3>
+                                        </div>
+                                        <div class="d-flex align-items-center">
+                                            <div class="me-4">
+                                                <div class="text-muted small">Current AQI</div>
+                                                <h2 class="fw-bold display-4 mb-0 text-primary">156</h2>
+                                            </div>
+                                            <div>
+                                                <span class="badge bg-poor fs-6 px-3 py-2 rounded-pill">
+                                                    <i class="bi bi-exclamation-triangle me-2"></i>Poor
+                                                </span>
+                                                <div class="text-muted small mt-2">Updated just now</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Hero Visualization -->
+                    <div class="col-lg-6">
+                        <div class="position-relative">
+                            <!-- Animated Circles -->
+                            <div class="position-absolute top-50 start-50 translate-middle">
+                                <div class="rounded-circle position-absolute" 
+                                     style="width: 300px; height: 300px; background: radial-gradient(circle, rgba(56, 189, 248, 0.1) 0%, transparent 70%);"></div>
+                                <div class="rounded-circle position-absolute" 
+                                     style="width: 250px; height: 250px; background: radial-gradient(circle, rgba(34, 197, 94, 0.1) 0%, transparent 70%);"></div>
+                            </div>
+                            
+                            <!-- Main Visualization Card -->
+                            <div class="card glass-card animate__animated animate__fadeInRight animate__delay-2s">
+                                <div class="card-body p-5 text-center">
+                                    <div class="mb-4">
+                                        <i class="bi bi-wind text-primary fs-1"></i>
+                                    </div>
+                                    <h4 class="fw-bold mb-3">Air Quality Index</h4>
+                                    <div class="aqi-scale d-flex justify-content-between mb-4">
+                                        <div class="text-center">
+                                            <div class="aqi-dot bg-good mx-auto mb-2"></div>
+                                            <small>Good</small>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="aqi-dot bg-satisfactory mx-auto mb-2"></div>
+                                            <small>Satis</small>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="aqi-dot bg-moderate mx-auto mb-2"></div>
+                                            <small>Mod</small>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="aqi-dot bg-poor mx-auto mb-2"></div>
+                                            <small>Poor</small>
+                                        </div>
+                                        <div class="text-center">
+                                            <div class="aqi-dot bg-very-poor mx-auto mb-2"></div>
+                                            <small>V.Poor</small>
+                                        </div>
+                                    </div>
+                                    <div class="progress" style="height: 20px;">
+                                        <div class="progress-bar bg-good" style="width: 20%"></div>
+                                        <div class="progress-bar bg-satisfactory" style="width: 20%"></div>
+                                        <div class="progress-bar bg-moderate" style="width: 20%"></div>
+                                        <div class="progress-bar bg-poor" style="width: 20%"></div>
+                                        <div class="progress-bar bg-very-poor" style="width: 20%"></div>
+                                    </div>
+                                    <div class="mt-4">
+                                        <div class="indicator bg-poor" style="margin-left: 60%;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Forecast Period Selector -->
+        <section class="py-4">
+            <div class="container">
+                <div class="card glass-card">
+                    <div class="card-body">
+                        <h5 class="fw-bold mb-4">
+                            <i class="bi bi-calendar-week text-primary me-2"></i>
+                            Forecast Period
+                        </h5>
+                        <div class="btn-group w-100" role="group" id="periodSelector">
+                            <input type="radio" class="btn-check" name="period" id="next24" checked>
+                            <label class="btn btn-period active" for="next24">
+                                <i class="bi bi-clock fs-4 mb-2"></i>
+                                <span>Next 24 Hours</span>
+                                <small class="text-muted d-block">Hourly predictions</small>
+                            </label>
+                            
+                            <input type="radio" class="btn-check" name="period" id="tomorrow">
+                            <label class="btn btn-period" for="tomorrow">
+                                <i class="bi bi-sun fs-4 mb-2"></i>
+                                <span>Tomorrow</span>
+                                <small class="text-muted d-block">Daily forecast</small>
+                            </label>
+                            
+                            <input type="radio" class="btn-check" name="period" id="next3days">
+                            <label class="btn btn-period" for="next3days">
+                                <i class="bi bi-calendar3 fs-4 mb-2"></i>
+                                <span>Next 3 Days</span>
+                                <small class="text-muted d-block">Extended forecast</small>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Dashboard -->
+        <section class="py-5">
+            <div class="container">
+                <div class="row g-4">
+                    <!-- Left Column: Chart -->
+                    <div class="col-lg-8">
+                        <div class="card glass-card h-100">
+                            <div class="card-header bg-transparent border-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="fw-bold mb-0">
+                                        <i class="bi bi-graph-up-arrow text-primary me-2"></i>
+                                        AQI Prediction Chart
+                                    </h5>
+                                    <div class="dropdown">
+                                        <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                            <i class="bi bi-graph-up"></i> Line Chart
+                                        </button>
+                                        <ul class="dropdown-menu">
+                                            <li><a class="dropdown-item chart-type-btn" href="javascript:void(0)" data-type="line">
+                                                <i class="bi bi-graph-up"></i> Line Chart
+                                            </a></li>
+                                            <li><a class="dropdown-item chart-type-btn" href="javascript:void(0)" data-type="bar">
+                                                <i class="bi bi-bar-chart"></i> Bar Chart
+                                            </a></li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="chart-container" style="height: 350px;">
+                                    <canvas id="aqiChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Summary Cards -->
+                    <div class="col-lg-4">
+                        <!-- Trend Indicator Card -->
+                        <div class="card glass-card mb-4">
+                            <div class="card-body text-center">
+                                <div class="mb-3">
+                                    <div class="trend-icon animate__animated animate__pulse animate__infinite">
+                                        <i class="bi bi-arrow-up-right fs-1 text-very-poor"></i>
+                                    </div>
+                                </div>
+                                <h3 class="fw-bold text-very-poor mb-2">Worsening</h3>
+                                <p class="text-muted mb-3">AQI expected to increase by 15%</p>
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-very-poor" style="width: 75%"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- High-Risk Alert Card -->
+                        <div class="card glass-card border-start border-3 border-very-poor mb-4">
+                            <div class="card-header bg-transparent border-0">
+                                <h5 class="fw-bold mb-0">
+                                    <i class="bi bi-exclamation-triangle text-very-poor me-2"></i>
+                                    High-Risk Time Alert
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="text-center mb-3">
+                                    <span class="badge bg-very-poor fs-6 px-4 py-3 rounded-pill">
+                                        <i class="bi bi-clock me-2"></i>8:00 PM - 10:00 PM
+                                    </span>
+                                </div>
+                                <p class="text-muted mb-0">
+                                    <i class="bi bi-info-circle text-primary me-1"></i>
+                                    Peak pollution hours detected. Avoid outdoor activities.
+                                </p>
+                            </div>
+                        </div>
+
+                        <!-- Prediction Summary Card -->
+                        <div class="card glass-card">
+                            <div class="card-header bg-transparent border-0">
+                                <h5 class="fw-bold mb-0">
+                                    <i class="bi bi-lightbulb text-primary me-2"></i>
+                                    Prediction Summary
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex align-items-start mb-3">
+                                    <i class="bi bi-info-circle-fill text-primary fs-4 me-3"></i>
+                                    <div>
+                                        <p class="mb-0" id="predictionSummary">
+                                            The AQI is predicted to peak at 180 during evening hours. 
+                                            Morning hours show moderate improvement with AQI around 120.
+                                        </p>
+                                    </div>
+                                </div>
+                                <hr>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="text-center p-3 bg-light rounded">
+                                            <i class="bi bi-arrow-down-circle-fill text-good fs-3 mb-2"></i>
+                                            <div class="fw-bold">Best Time</div>
+                                            <div class="text-muted">6:00 AM</div>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="text-center p-3 bg-light rounded">
+                                            <i class="bi bi-arrow-up-circle-fill text-very-poor fs-3 mb-2"></i>
+                                            <div class="fw-bold">Worst Time</div>
+                                            <div class="text-muted">8:00 PM</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stats Cards Row -->
+                <div class="row g-4 mt-4">
+                    <div class="col-md-3">
+                        <div class="card stats-card glow-effect" data-stat="peak">
+                            <div class="card-body text-center">
+                                <div class="stat-icon mb-3">
+                                    <i class="bi bi-thermometer-high fs-1 text-very-poor"></i>
+                                </div>
+                                <div class="text-muted small">Peak AQI</div>
+                                <div class="display-6 fw-bold text-very-poor">180</div>
+                                <div class="small">Today at 8:00 PM</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card stats-card glow-effect" data-stat="low">
+                            <div class="card-body text-center">
+                                <div class="stat-icon mb-3">
+                                    <i class="bi bi-thermometer-low fs-1 text-good"></i>
+                                </div>
+                                <div class="text-muted small">Lowest AQI</div>
+                                <div class="display-6 fw-bold text-good">95</div>
+                                <div class="small">Tomorrow at 6:00 AM</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card stats-card glow-effect" data-stat="avg">
+                            <div class="card-body text-center">
+                                <div class="stat-icon mb-3">
+                                    <i class="bi bi-speedometer2 fs-1 text-moderate"></i>
+                                </div>
+                                <div class="text-muted small">Avg. AQI</div>
+                                <div class="display-6 fw-bold text-moderate">142</div>
+                                <div class="small">Next 24 hours</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card stats-card glow-effect" data-stat="health">
+                            <div class="card-body text-center">
+                                <div class="stat-icon mb-3">
+                                    <i class="bi bi-heart-pulse fs-1 text-poor"></i>
+                                </div>
+                                <div class="text-muted small">Health Impact</div>
+                                <div class="display-6 fw-bold">Moderate</div>
+                                <span class="badge bg-poor">Sensitive Groups</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <%- include("../partials/footer") %>
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JS -->
+    <script>
+        // AirIQ - AQI Forecast Dashboard
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize everything
+            initCharts();
+            setupEventListeners();
+            startLiveUpdates();
+            initAnimations();
+            
+            // Mobile menu toggle for dashboard navbar
+            const navToggle = document.getElementById("navToggle");
+            const mobileMenu = document.getElementById("mobileMenu");
+
+            if (navToggle && mobileMenu) {
+                navToggle.addEventListener("click", () => {
+                    mobileMenu.classList.toggle("show");
+                });
+            }
+        });
+
+        // Initialize Charts
+        function initCharts() {
+            // AQI Prediction Chart
+            const ctx = document.getElementById('aqiChart').getContext('2d');
+            
+            const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(30, 58, 138, 0.3)');
+            gradient.addColorStop(1, 'rgba(30, 58, 138, 0.05)');
+            
+            window.aqiChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['6 AM', '9 AM', '12 PM', '3 PM', '6 PM', '9 PM', '12 AM', '3 AM'],
+                    datasets: [{
+                        label: 'AQI Prediction',
+                        data: [95, 120, 145, 160, 180, 175, 150, 130],
+                        borderColor: '#1E3A8A',
+                        backgroundColor: gradient,
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: function(context) {
+                            const value = context.dataset.data[context.dataIndex];
+                            return getAqiColor(value);
+                        },
+                        pointRadius: 6,
+                        pointHoverRadius: 10,
+                        pointBorderColor: '#FFFFFF',
+                        pointBorderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(30, 58, 138, 0.9)',
+                            titleColor: '#FFFFFF',
+                            bodyColor: '#FFFFFF',
+                            borderColor: '#38BDF8',
+                            borderWidth: 1,
+                            cornerRadius: 8,
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.raw;
+                                    const level = getAqiLevel(value);
+                                    return [`AQI: ${value}`, `Level: ${level}`];
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 200,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value + ' AQI';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
+                            }
+                        }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
+                    }
+                }
+            });
+        }
+
+        // Setup Event Listeners - FIXED: No page jumping
+        function setupEventListeners() {
+            // Period Selector - Prevent default behavior
+            document.querySelectorAll('.btn-period').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    // Prevent page jump
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    // Get period from label's for attribute
+                    const periodId = this.getAttribute('for');
+                    
+                    // Update active class
+                    document.querySelectorAll('.btn-period').forEach(b => {
+                        b.classList.remove('active');
+                    });
+                    this.classList.add('active');
+                    
+                    // Check the corresponding radio button
+                    document.getElementById(periodId).checked = true;
+                    
+                    // Update forecast data
+                    updateForecastData(periodId);
+                });
+            });
+            
+            // Chart Type Selector - Prevent page jump
+            document.querySelectorAll('.chart-type-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    // Prevent page jump
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const type = this.getAttribute('data-type');
+                    setChartType(type);
+                    
+                    // Update dropdown text
+                    const dropdownBtn = document.querySelector('.dropdown-toggle');
+                    const icon = type === 'line' ? 'bi-graph-up' : 'bi-bar-chart';
+                    dropdownBtn.innerHTML = `<i class="bi ${icon}"></i> ${type === 'line' ? 'Line Chart' : 'Bar Chart'}`;
+                });
+            });
+            
+            // Stats Cards Interaction - Fixed to prevent jumping
+            document.querySelectorAll('.stats-card').forEach(card => {
+                card.addEventListener('click', function(e) {
+                    // Prevent any default behavior
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
+                    const stat = this.getAttribute('data-stat');
+                    showStatDetails(stat);
+                });
+            });
+            
+            // Update Prediction Summary based on time
+            updatePredictionSummary();
+        }
+
+        // Update Forecast Data
+        function updateForecastData(period) {
+            let data, summary;
+            
+            switch(period) {
+                case 'next24':
+                    data = [95, 120, 145, 160, 180, 175, 150, 130];
+                    summary = "AQI peaks at 180 during evening hours. Morning shows moderate air quality.";
+                    break;
+                case 'tomorrow':
+                    data = [85, 110, 135, 155, 170, 165, 140, 120];
+                    summary = "Tomorrow shows slight improvement with peak AQI of 170 in evening.";
+                    break;
+                case 'next3days':
+                    data = [90, 115, 140, 165, 175, 170, 145, 125];
+                    summary = "3-day forecast shows gradual improvement with decreasing peak AQI.";
+                    break;
+            }
+            
+            // Update chart with fast transition
+            window.aqiChart.data.datasets[0].data = data;
+            window.aqiChart.update('none');
+            
+            // Update summary with fast animation
+            const summaryElement = document.getElementById('predictionSummary');
+            summaryElement.textContent = summary;
+            summaryElement.style.transition = 'all 0.2s ease';
+            summaryElement.style.opacity = '0.8';
+            setTimeout(() => {
+                summaryElement.style.opacity = '1';
+            }, 200);
+        }
+
+        // Set Chart Type - Only Line and Bar charts
+        function setChartType(type) {
+            // Only allow line or bar charts
+            if (type !== 'line' && type !== 'bar') {
+                type = 'line';
+            }
+
+            window.aqiChart.config.type = type;
+            window.aqiChart.update();
+        }
+
+        // Start Live Updates
+        function startLiveUpdates() {
+            // Update time every minute
+            setInterval(updateTime, 60000);
+            updateTime();
+            // Simulate AQI updates every 5 minutes
+            setInterval(updateAqiValues, 300000);
+        }
+
+        // Update Current Time
+        function updateTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const dateString = now.toLocaleDateString([], { 
+                weekday: 'short', 
+                month: 'short', 
+                day: 'numeric' 
+            });
+            
+            // Find and update time elements
+            document.querySelectorAll('.text-muted').forEach(element => {
+                if (element.textContent.includes('Updated')) {
+                    element.textContent = `Updated: ${timeString}, ${dateString}`;
+                    element.style.transition = 'all 0.2s ease';
+                    element.style.opacity = '0.8';
+                    setTimeout(() => {
+                        element.style.opacity = '1';
+                    }, 200);
+                }
+            });
+        }
+
+        // Update AQI Values (Simulation)
+        function updateAqiValues() {
+            const aqiElements = document.querySelectorAll('[data-aqi]');
+            
+            aqiElements.forEach(element => {
+                const current = parseInt(element.getAttribute('data-aqi'));
+                const change = Math.floor(Math.random() * 10) - 5; // Small change
+                const newValue = Math.max(0, Math.min(500, current + change));
+                
+                // Update value with fast transition
+                element.setAttribute('data-aqi', newValue);
+                
+                // Update badge if exists
+                const badge = element.querySelector('.badge');
+                if (badge) {
+                    const level = getAqiLevel(newValue);
+                    badge.textContent = level;
+                    badge.className = `badge bg-${getAqiClass(newValue)}`;
+                    badge.style.transition = 'all 0.2s ease';
+                }
+            });
+        }
+
+        // Helper Functions
+        function getAqiColor(aqi) {
+            if (aqi <= 50) return '#22C55E';
+            if (aqi <= 100) return '#84CC16';
+            if (aqi <= 150) return '#FACC15';
+            if (aqi <= 200) return '#FB923C';
+            if (aqi <= 300) return '#EF4444';
+            return '#7F1D1D';
+        }
+        
+        function getAqiClass(aqi) {
+            if (aqi <= 50) return 'good';
+            if (aqi <= 100) return 'satisfactory';
+            if (aqi <= 150) return 'moderate';
+            if (aqi <= 200) return 'poor';
+            if (aqi <= 300) return 'very-poor';
+            return 'severe';
+        }
+        
+        function getAqiLevel(aqi) {
+            if (aqi <= 50) return 'Good';
+            if (aqi <= 100) return 'Satisfactory';
+            if (aqi <= 150) return 'Moderate';
+            if (aqi <= 200) return 'Poor';
+            if (aqi <= 300) return 'Very Poor';
+            return 'Severe';
+        }
+        
+        function updatePredictionSummary() {
+            const hour = new Date().getHours();
+            let summary;
+            
+            if (hour >= 18 || hour < 6) {
+                summary = "AQI is currently elevated due to reduced atmospheric mixing. Expect improvement by morning.";
+            } else if (hour >= 6 && hour < 12) {
+                summary = "Morning shows moderate AQI levels. Peak pollution expected in late afternoon.";
+            } else {
+                summary = "Afternoon AQI rising. Evening commute may see highest pollution levels.";
+            }
+            
+            const summaryElement = document.getElementById('predictionSummary');
+            if (summaryElement) {
+                summaryElement.textContent = summary;
+            }
+        }
+        
+        function showStatDetails(stat) {
+            const messages = {
+                'peak': 'Peak AQI occurs during evening rush hours (6-8 PM) due to traffic emissions and atmospheric conditions.',
+                'low': 'Lowest AQI typically observed in early morning (5-7 AM) before traffic buildup.',
+                'avg': 'Average AQI considers 24-hour measurements across all monitoring stations.',
+                'health': 'Health impact is moderate. Sensitive groups should limit prolonged outdoor exertion.'
+            };
+            // Create a simple notification instead of alert
+            const notification = document.createElement('div');
+            notification.className = 'alert alert-info alert-dismissible fade show position-fixed top-0 end-0 m-3';
+            notification.style.zIndex = '9999';
+            notification.innerHTML = `
+                <i class="bi bi-info-circle me-2"></i>
+                ${messages[stat] || 'Detailed information for this metric.'}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            `;
+            document.body.appendChild(notification);
+            
+            // Auto remove after 3 seconds
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.remove();
+                }
+            }, 3000);
+        }
+        
+        function initAnimations() {
+            // Fast hover effects
+            document.querySelectorAll('.card').forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-4px)';
+                    this.style.transition = 'transform 0.2s ease';
+                });
+                
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0)';
+                    this.style.transition = 'transform 0.2s ease';
+                });
+            });
+        }
+        
+        // Fast transitions for all interactive elements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Apply fast transitions to all interactive elements
+            const interactiveElements = document.querySelectorAll('.btn, .card, .nav-link, .stats-card, .badge');
+            interactiveElements.forEach(el => {
+                el.style.transition = 'all 0.2s ease';
+            });
+        });
+        
+        // Export functions if needed
+        window.AirIQ = {
+            updateForecastData,
+            setChartType,
+            getAqiLevel,
+            getAqiColor
+        };
+    </script>
+</body>
+</html>
