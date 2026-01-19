@@ -1,6 +1,6 @@
 require("dotenv").config(); // MUST be first line
 const cron = require("node-cron");
-// const { saveFromAPI } = require("./services/historySaver");
+
 
 
 const express = require("express");
@@ -35,6 +35,7 @@ app.get("/about", (req, res) => {
     title: "AQI Monitor - About", 
   });
 });
+
 
 app.use("/", pageRoutes);
 app.use("/api/chat", chatRoutes);

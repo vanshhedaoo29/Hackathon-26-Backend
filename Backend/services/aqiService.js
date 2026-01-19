@@ -2,6 +2,7 @@ const axios = require("axios");
 const { calculateAQI } = require("../utils/aqiCalculator");
 const { saveAQIData } = require("../services/historyService");
 
+// ================= EXISTING CODE (UNCHANGED) =================
 exports.getCurrentAQI = async (req, res) => {
   const city = req.query.city || "Delhi";
 
@@ -11,7 +12,7 @@ exports.getCurrentAQI = async (req, res) => {
       {
         params: {
           format: 'json',
-          limit: 25 // fetch enough records to find all pollutants
+          limit: 25
         }
       }
     );
@@ -48,7 +49,6 @@ exports.getCurrentAQI = async (req, res) => {
         found.add(pollutant);
       }
 
-      // 🚀 Stop once all pollutants are found
       if (found.size === requiredPollutants.length) break;
     }
 
@@ -57,7 +57,7 @@ exports.getCurrentAQI = async (req, res) => {
     }
 
     const aqiResult = calculateAQI({ pm25, pm10, no2, so2, ozone, nh3 });
-    //format date
+
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, "0");
@@ -65,7 +65,6 @@ exports.getCurrentAQI = async (req, res) => {
     const hours = String(now.getHours()).padStart(2, "0");
     const minutes = String(now.getMinutes()).padStart(2, "0");
     const seconds = String(now.getSeconds()).padStart(2, "0");
-    // local ISO-like format (YYYY-MM-DDTHH:MM:SS)
     const localISO = `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
 
     const entry = {
@@ -76,6 +75,7 @@ exports.getCurrentAQI = async (req, res) => {
       pollutants: { pm25, pm10, no2, so2, ozone, nh3 },
       lastUpdated: localISO 
     };
+
     res.json(entry);
     saveAQIData(entry);
 
@@ -84,3 +84,24 @@ exports.getCurrentAQI = async (req, res) => {
     res.status(500).json({ error: "Failed to fetch AQI data" });
   }
 };
+
+// ================= NEW: HOURLY AUTO-FETCH (ONLY ADDITION) =================
+async function autoFetchAQI() {
+  try {
+    await exports.getCurrentAQI(
+      { query: { city: "Delhi" } },
+      { json: () => {} } // dummy response
+    );
+  } catch (err) {
+    console.error("Auto-fetch error:", err.message);
+  }
+}
+
+// Run once when server starts
+autoFetchAQI();
+
+// Run every 1 hour
+setInterval(autoFetchAQI, 60 * 60 * 1000);
+//for testing, runs every 10 sec
+// setInterval(autoFetchAQI, 10 * 1000);
+

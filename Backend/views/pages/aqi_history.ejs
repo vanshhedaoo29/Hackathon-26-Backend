@@ -1,0 +1,700 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AQI History - <%= city || "Delhi" %></title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+</head>
+
+<style>
+    /* ===== ROOT VARIABLES ===== */
+    :root {
+        --bg: #f4f7fb;
+        --card: #ffffff;
+        --text: #0f172a;
+        --muted: #64748b;
+        --blue: #1d4ed8;
+        --shadow: 0 10px 25px rgba(15, 23, 42, 0.07);
+        --radius: 16px;
+        --border: rgba(15, 23, 42, 0.06);
+    }
+
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    html, body {
+        font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        color: var(--text);
+        background: var(--bg);
+    }
+
+    .navbar {
+        position: sticky;
+        top: 0;
+        z-index: 50;
+        background: #f7faff;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .nav-container {
+        max-width: 1180px;
+        margin: auto;
+        padding: 14px 18px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-weight: 800;
+        letter-spacing: 0.2px;
+        color: var(--text);
+    }
+
+    .logo {
+        width: 36px;
+        height: 36px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        background: #e7f5ec;
+        border: 1px solid var(--border);
+    }
+
+    .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+    }
+
+    .nav-links a {
+        text-decoration: none;
+        color: #1f2a44;
+        font-weight: 600;
+        font-size: 13px;
+        padding: 10px 14px;
+        border-radius: 999px;
+        transition: 0.2s ease;
+    }
+
+    .nav-links a:hover {
+        background: rgba(29, 78, 216, 0.08);
+    }
+
+    .nav-links a.active {
+        background: rgba(29, 78, 216, 0.15);
+        color: var(--blue);
+    }
+
+    .nav-toggle {
+        display: none;
+        background: transparent;
+        border: 0;
+        cursor: pointer;
+    }
+
+    .nav-toggle span {
+        display: block;
+        width: 24px;
+        height: 2px;
+        background: #1f2a44;
+        margin: 5px 0;
+        border-radius: 2px;
+    }
+
+    .page {
+        max-width: 1180px;
+        margin: auto;
+        padding: 28px 18px 40px;
+    }
+
+    .hero {
+        text-align: center;
+        margin: 8px 0 22px;
+    }
+
+    .hero h1 {
+        font-size: clamp(22px, 3vw, 34px);
+        font-weight: 900;
+        color: #0b2b80;
+        letter-spacing: -0.6px;
+    }
+
+    .hero p {
+        margin-top: 8px;
+        color: var(--muted);
+        font-weight: 500;
+        font-size: 15px;
+    }
+
+    .hero .muted {
+        font-weight: 700;
+        color: #334155;
+    }
+
+    .card {
+        background: var(--card);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        border: 1px solid var(--border);
+    }
+
+    .tabs {
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        margin: 2rem auto;
+        max-width: 400px;
+        background: white;
+        padding: 0.25rem;
+        border-radius: 0.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .tab {
+        flex: 1;
+        padding: 0.75rem;
+        border: none;
+        background: none;
+        cursor: pointer;
+        border-radius: 0.375rem;
+        font-weight: 600;
+        color: #64748b;
+        font-family: Inter, sans-serif;
+        font-size: 13px;
+        transition: all 0.2s;
+    }
+
+    .tab.active {
+        background: #3b82f6;
+        color: white;
+    }
+
+    .main-content {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .main-content {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .chart-container {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .chart h3 {
+        color: #1e293b;
+        margin-bottom: 1.5rem;
+        font-size: 1.25rem;
+        font-weight: 900;
+    }
+
+    .chart-area {
+        display: flex;
+        height: 500px;
+    }
+
+    .y-axis {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        padding-right: 1rem;
+        margin-right: 1rem;
+        border-right: 1px solid #e2e8f0;
+        font-weight: 600;
+        color: #64748b;
+        text-align: right;
+        font-size: 12px;
+    }
+
+    .bars {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-around;
+        flex: 1;
+        border-bottom: 1px solid #e2e8f0;
+        padding-bottom: 2.5rem;
+    }
+
+    .bar {
+        width: 50px;
+        background: linear-gradient(to top, #3b82f6, #60a5fa);
+        border-radius: 0.25rem 0.25rem 0 0;
+        position: relative;
+        transition: transform 0.2s;
+    }
+
+    .bar:hover {
+        transform: scale(1.05);
+    }
+
+    .label {
+        position: absolute;
+        bottom: -2.5rem;
+        left: 50%;
+        transform: translateX(-50%);
+        font-weight: 600;
+        color: #64748b;
+        white-space: nowrap;
+        font-size: 12px;
+    }
+
+    .right-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .aqi-summary {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .summary-item {
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #e2e8f0;
+    }
+
+    .summary-item:last-child {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+    }
+
+    .summary-label {
+        font-size: 13px;
+        color: #64748b;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+
+    .summary-value {
+        font-size: 28px;
+        font-weight: 900;
+        color: #1e293b;
+        margin-bottom: 0.25rem;
+        font-family: Inter, sans-serif;
+    }
+
+    .summary-detail {
+        font-size: 13px;
+        color: #94a3b8;
+        font-weight: 500;
+    }
+
+    .summary-range {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+
+    .range-min, .range-max {
+        font-size: 16px;
+        font-weight: 700;
+        color: #1e293b;
+        min-width: 40px;
+        font-family: Inter, sans-serif;
+    }
+
+    .range-bar {
+        flex: 1;
+        height: 8px;
+        background: #e2e8f0;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .range-fill {
+        height: 100%;
+        width: 0%;
+        background: linear-gradient(to right, #10b981, #f59e0b, #ef4444);
+        border-radius: 4px;
+    }
+
+    .insights {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .insights h3 {
+        color: #1e293b;
+        margin-bottom: 1rem;
+        font-size: 16px;
+        font-weight: 900;
+    }
+
+    .insights p {
+        color: #475569;
+        line-height: 1.7;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .insights strong {
+        color: #dc2626;
+        background: #fee2e2;
+        padding: 0.125rem 0.5rem;
+        border-radius: 0.25rem;
+        font-weight: 700;
+    }
+
+    .footer {
+        margin-top: 26px;
+        background: #ffffff;
+        border-top: 1px solid var(--border);
+    }
+
+    .footer-inner {
+        max-width: 1180px;
+        margin: auto;
+        padding: 24px 18px;
+        display: grid;
+        grid-template-columns: 1.4fr 1fr 1fr;
+        gap: 16px;
+    }
+
+    .footer-brand {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+    }
+
+    .footer-desc {
+        color: var(--muted);
+        font-weight: 500;
+        line-height: 1.6;
+        max-width: 420px;
+        font-size: 14px;
+    }
+
+    .footer-col b {
+        font-weight: 900;
+        display: inline-block;
+        margin-bottom: 10px;
+        font-size: 15px;
+    }
+
+    .footer-col a {
+        display: block;
+        text-decoration: none;
+        color: #334155;
+        font-weight: 700;
+        font-size: 13px;
+        margin: 8px 0;
+    }
+
+    .footer-col p {
+        color: #334155;
+        font-weight: 600;
+        margin: 8px 0;
+        font-size: 13px;
+    }
+
+    .footer-bottom {
+        border-top: 1px solid var(--border);
+        text-align: center;
+        padding: 14px 12px;
+        color: var(--muted);
+        font-weight: 700;
+        font-size: 13px;
+    }
+
+    .heart {
+        color: #ef4444;
+    }
+
+    .logo.small {
+        width: 32px;
+        height: 32px;
+        border-radius: 12px;
+        background: rgba(29, 78, 216, 0.08);
+    }
+
+    @media (max-width: 760px) {
+        .nav-links {
+            display: none;
+        }
+
+        .nav-toggle {
+            display: block;
+        }
+
+        .footer-inner {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .mobile-menu {
+        display: none;
+        flex-direction: column;
+        padding: 10px 18px 16px;
+        gap: 8px;
+    }
+
+    .mobile-menu.show {
+        display: flex;
+    }
+
+    .mobile-menu a {
+        text-decoration: none;
+        color: #1f2a44;
+        font-weight: 700;
+        padding: 10px 12px;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.6);
+        border: 1px solid var(--border);
+        font-size: 13px;
+    }
+
+    .mobile-menu a.active {
+        border-color: rgba(29, 78, 216, 0.25);
+        background: rgba(29, 78, 216, 0.12);
+        color: var(--blue);
+    }
+</style>
+
+<body>
+    <!-- NAVBAR -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="brand">
+                <div class="logo">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                        <path d="M7 14c-1.66 0-3 1.34-3 3s1.34 3 3 3h10a4 4 0 0 0 0-8h-.5A5.5 5.5 0 0 0 6 10.5" stroke="#0F9D58" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M8 5l2 2-2 2" stroke="#0F9D58" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M4 7h6" stroke="#0F9D58" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                </div>
+                <span class="brand-text">AQI Monitor</span>
+            </div>
+
+            <nav class="nav-links">
+                <a href="/dashboard">Dashboard</a>
+                <a href="/forecast">Forecast</a>
+                <a href="/history" class="active">History</a>
+                <a href="/healthadvisory">Health Advisory</a>
+                <a href="/about">About</a>
+            </nav>
+
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+
+        <div class="mobile-menu" id="mobileMenu">
+            <a href="/dashboard">Dashboard</a>
+            <a href="/forecast">Forecast</a>
+            <a href="/history" class="active">History</a>
+            <a href="/healthadvisory">Health Advisory</a>
+            <a href="/about">About</a>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="page">
+        <section class="hero">
+            <h1>AQI Trends & History</h1>
+            <p>Historical air quality data analysis for <span class="muted"><%= city || "Delhi" %></span></p>
+        </section>
+
+        <div class="tabs">
+            <button class="tab active" data-range="today">Today</button>
+            <button class="tab" data-range="weekly">Weekly</button>
+            <button class="tab" data-range="monthly">Monthly</button>
+        </div>
+
+        <div class="main-content">
+            <div class="chart-container">
+                <div class="chart">
+                    <h3>Historical AQI Chart</h3>
+                    <div class="chart-area">
+                        <div class="y-axis">
+                            <span>500</span><span>450</span><span>400</span><span>350</span><span>300</span>
+                            <span>250</span><span>200</span><span>150</span><span>100</span><span>50</span><span>0</span>
+                        </div>
+                        <div class="bars" id="barsContainer">
+                            <!-- Bars will be generated dynamically -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="right-sidebar">
+                <div class="aqi-summary">
+                    <div class="summary-item">
+                        <div class="summary-label">Average AQI</div>
+                        <div class="summary-value" id="avgAQI">--</div>
+                        <div class="summary-detail" id="aqiCategory">--</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">Period</div>
+                        <div class="summary-value" id="periodValue">Today</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-label">AQI Range</div>
+                        <div class="summary-range">
+                            <div class="range-min" id="rangeMin">--</div>
+                            <div class="range-bar">
+                                <div class="range-fill" id="rangeFill"></div>
+                            </div>
+                            <div class="range-max" id="rangeMax">--</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="insights">
+                    <h3>Insights</h3>
+                    <p id="insightText">Loading insights...</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-col">
+                <div class="footer-brand">
+                    <div class="logo small">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                            <path d="M7 14c-1.66 0-3 1.34-3 3s1.34 3 3 3h10a4 4 0 0 0 0-8h-.5A5.5 5.5 0 0 0 6 10.5" stroke="#1D4ED8" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                    </div>
+                    <b>AQI Monitor</b>
+                </div>
+                <p class="footer-desc">
+                    Real-time air quality monitoring and AI-powered predictions for healthier living.
+                </p>
+            </div>
+
+            <div class="footer-col">
+                <b>Quick Links</b>
+                <a href="/dashboard">Dashboard</a>
+                <a href="/forecast">Forecast</a>
+                <a href="/healthadvisory">Health Advisory</a>
+                <a href="/about">About</a>
+            </div>
+
+            <div class="footer-col">
+                <b>Information</b>
+                <p>📌 Data Source: CPCB / OpenAQ</p>
+                <p>⚠️ AQI values are indicative</p>
+                <p>💡 Developed for Hackathon</p>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            © 2026 AQI Monitor. Built with <span class="heart">❤</span> for cleaner air.
+        </div>
+    </footer>
+
+    <script>
+        const navToggle = document.getElementById("navToggle");
+        const mobileMenu = document.getElementById("mobileMenu");
+
+        navToggle.addEventListener("click", () => {
+            mobileMenu.classList.toggle("show");
+        });
+
+        const city = "<%= city || 'Delhi' %>";
+        const barsContainer = document.getElementById("barsContainer");
+        const avgAQIEl = document.getElementById("avgAQI");
+        const categoryEl = document.getElementById("aqiCategory");
+        const rangeMinEl = document.getElementById("rangeMin");
+        const rangeMaxEl = document.getElementById("rangeMax");
+        const rangeFillEl = document.getElementById("rangeFill");
+        const insightEl = document.getElementById("insightText");
+        const periodValueEl = document.getElementById("periodValue");
+
+        async function fetchHistory(range = "today") {
+            try {
+                const res = await fetch(`/api/history?city=${city}&range=${range}`);
+                const data = await res.json();
+                updateUI(data, range);
+            } catch (err) {
+                console.error("Error fetching history:", err);
+            }
+        }
+
+        function updateUI(data, range) {
+            barsContainer.innerHTML = "";
+
+            if (!data.chartData || data.chartData.length === 0) {
+                barsContainer.innerHTML = "<p>No data available</p>";
+                return;
+            }
+
+            const maxAQI = 500;
+
+            data.chartData.forEach(item => {
+                const bar = document.createElement("div");
+                bar.className = "bar";
+                bar.style.height = item.value ? `${(item.value / maxAQI) * 100}%` : "0%";
+
+                const label = document.createElement("div");
+                label.className = "label";
+                label.textContent = item.label;
+
+                bar.appendChild(label);
+                barsContainer.appendChild(bar);
+            });
+
+            avgAQIEl.textContent = data.avgAQI || "--";
+            categoryEl.textContent = data.insight || "--";
+            periodValueEl.textContent = range.charAt(0).toUpperCase() + range.slice(1);
+
+            const [min, max] = data.aqiRange.split(" - ");
+            rangeMinEl.textContent = min;
+            rangeMaxEl.textContent = max;
+
+            const fillPercent = (max / maxAQI) * 100;
+            rangeFillEl.style.width = `${fillPercent}%`;
+
+            insightEl.textContent = data.insight || "No insights available.";
+        }
+
+        document.querySelectorAll(".tab").forEach(tab => {
+            tab.addEventListener("click", () => {
+                document.querySelectorAll(".tab").forEach(t => t.classList.remove("active"));
+                tab.classList.add("active");
+                const range = tab.dataset.range;
+                fetchHistory(range);
+            });
+        });
+
+        // Load today on page load
+        fetchHistory("today");
+    </script>
+</body>
+</html>
